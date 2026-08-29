@@ -1,9 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { usePathname, useParams } from "next/navigation"
 
-import { sdk } from "@lib/config"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 const STATIC_LABELS: Record<string, string> = {
@@ -35,77 +33,28 @@ const titleCase = (value: string) =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ")
 
+// Renders the "trunk" only (Home / Shop, Home / Collections, etc). The
+// final segment for a product/category/collection page needs real data
+// (the actual title, not a guess off the URL slug) that this
+// shared-across-every-page component has no way to know - it's rendered
+// once in the root layout, above where Next.js resolves the page's own
+// [handle] param, so it can't read that data without a client-side
+// fetch. A client fetch just moves the problem: the real title would
+// still be missing from server-rendered HTML and from the very first
+// paint, and a titleCase(slug) fallback is often wrong (acronyms,
+// unusual capitalization). Instead, BreadcrumbLeaf (rendered by each
+// product/category/collection template, which already has the real
+// title as a prop) appends the correct final segment, styled to
+// continue this bar seamlessly.
 const Breadcrumbs = () => {
   const pathname = usePathname()
   const { countryCode } = useParams()
-  const [dynamicLabel, setDynamicLabel] = useState<string | null>(null)
 
   const withoutCountry =
     typeof countryCode === "string"
       ? pathname.replace(`/${countryCode}`, "")
       : pathname
   const segments = withoutCountry.split("/").filter(Boolean)
-
-  useEffect(() => {
-    setDynamicLabel(null)
-
-    if (segments.length < 2) {
-      return
-    }
-
-    const section = segments[segments.length - 2]
-    const handle = segments[segments.length - 1]
-
-    if (!DYNAMIC_PARENTS.has(section)) {
-      return
-    }
-
-    let cancelled = false
-
-    const resolve = async () => {
-      try {
-        if (section === "categories") {
-          const res = await sdk.client.fetch<{
-            product_categories?: { name: string }[]
-          }>("/store/product-categories", {
-            method: "GET",
-            query: { handle, limit: 1 },
-          })
-          if (!cancelled) {
-            setDynamicLabel(res.product_categories?.[0]?.name ?? titleCase(handle))
-          }
-        } else if (section === "products") {
-          const res = await sdk.client.fetch<{ products?: { title: string }[] }>(
-            "/store/products",
-            { method: "GET", query: { handle, limit: 1 } }
-          )
-          if (!cancelled) {
-            setDynamicLabel(res.products?.[0]?.title ?? titleCase(handle))
-          }
-        } else if (section === "collections") {
-          const res = await sdk.client.fetch<{
-            collections?: { title: string }[]
-          }>("/store/collections", {
-            method: "GET",
-            query: { handle, limit: 1 },
-          })
-          if (!cancelled) {
-            setDynamicLabel(res.collections?.[0]?.title ?? titleCase(handle))
-          }
-        }
-      } catch {
-        if (!cancelled) {
-          setDynamicLabel(titleCase(handle))
-        }
-      }
-    }
-
-    resolve()
-
-    return () => {
-      cancelled = true
-    }
-  }, [pathname])
 
   if (segments.length === 0) {
     return null
@@ -117,14 +66,10 @@ const Breadcrumbs = () => {
     const isLast = index === segments.length - 1
     const prevSegment = index > 0 ? segments[index - 1] : null
 
+    // The final segment under a dynamic parent (product/category/
+    // collection detail pages) is rendered by BreadcrumbLeaf instead -
+    // skip it here entirely.
     if (isLast && prevSegment && DYNAMIC_PARENTS.has(prevSegment)) {
-      // Skip the crumb entirely while the real title is loading, rather
-      // than showing a title-cased guess off the URL slug - that guess is
-      // often wrong (acronyms, unusual capitalization) and would otherwise
-      // be what server-rendered HTML and crawlers see before hydration.
-      if (dynamicLabel) {
-        crumbs.push({ label: dynamicLabel, href: "" })
-      }
       return
     }
 

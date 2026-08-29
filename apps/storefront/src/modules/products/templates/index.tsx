@@ -1,5 +1,6 @@
 import React, { Suspense } from "react"
 
+import BreadcrumbLeaf from "@modules/layout/components/breadcrumbs/breadcrumb-leaf"
 import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
 import ProductOnboardingCta from "@modules/products/components/product-onboarding-cta"
@@ -30,6 +31,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   return (
     <>
+      <BreadcrumbLeaf label={product.title} />
       <div
         className="content-container grid grid-cols-1 gap-x-12 gap-y-8 py-6 medium:grid-cols-2 medium:items-start"
         data-testid="product-container"

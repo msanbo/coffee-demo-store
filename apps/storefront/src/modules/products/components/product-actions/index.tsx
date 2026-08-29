@@ -7,6 +7,7 @@ import { Button } from "@modules/common/components/ui"
 import Divider from "@modules/common/components/divider"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import { isEqual } from "lodash"
+import { sortProductOptions } from "@lib/util/product"
 import { useParams, usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import ProductPrice from "../product-price"
@@ -141,7 +142,7 @@ export default function ProductActions({
         <div>
           {(product.variants?.length ?? 0) > 1 && (
             <div className="flex flex-col gap-y-4">
-              {(product.options || []).map((option) => {
+              {sortProductOptions(product.options || []).map((option) => {
                 return (
                   <div key={option.id}>
                     <OptionSelect

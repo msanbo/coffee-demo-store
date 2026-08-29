@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 
 import ChevronDownMini from "@modules/common/icons/chevron-down-mini"
 import { sdk } from "@lib/config"
+import { sortProductOptions } from "@lib/util/product"
 import { HttpTypes } from "@medusajs/types"
 import clsx from "clsx"
 
@@ -34,7 +35,7 @@ const OptionsPicker = ({
         })
 
         if (response?.product_options) {
-          setOptions(response.product_options)
+          setOptions(sortProductOptions(response.product_options))
         }
       } catch (error) {
         console.error("Failed to fetch product options", error)
