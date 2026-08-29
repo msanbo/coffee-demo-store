@@ -11,25 +11,55 @@ import {
 
 const productImageDir = join(__dirname, "../assets/product-images");
 
-type ProductSeed = {
+const GRIND_VALUES = ["Whole Bean", "Drip Ground", "Espresso Ground"] as const;
+const BAG_SIZE_VALUES = ["2 lb", "5 lb", "10 lb"] as const;
+const BOTTLE_SIZE_VALUES = ["32 oz", "64 oz"] as const;
+
+// Bulk pricing: $/lb drops as bag size goes up. Grind doesn't affect price.
+const BAG_SIZE_LB: Record<(typeof BAG_SIZE_VALUES)[number], number> = {
+  "2 lb": 2,
+  "5 lb": 5,
+  "10 lb": 10,
+};
+const BAG_SIZE_DISCOUNT: Record<(typeof BAG_SIZE_VALUES)[number], number> = {
+  "2 lb": 1,
+  "5 lb": 0.88,
+  "10 lb": 0.78,
+};
+
+type BagCoffeeSeed = {
+  kind: "bag";
   title: string;
   handle: string;
   category: string;
-  format: string;
-  usd: number;
+  pricePerLb: number;
   origin: string;
   roastLevel: string;
   description: string;
   imageFile: string;
 };
 
+type BottleCoffeeSeed = {
+  kind: "bottle";
+  title: string;
+  handle: string;
+  category: string;
+  bottlePrices: Record<(typeof BOTTLE_SIZE_VALUES)[number], number>;
+  origin: string;
+  roastLevel: string;
+  description: string;
+  imageFile: string;
+};
+
+type ProductSeed = BagCoffeeSeed | BottleCoffeeSeed;
+
 const products: ProductSeed[] = [
   {
+    kind: "bag",
     title: "Ethiopia Yirgacheffe",
-    handle: "ethiopia-yirgacheffe-12oz",
+    handle: "ethiopia-yirgacheffe",
     category: "Single-Origin Roasts",
-    format: "12 oz Bag",
-    usd: 19,
+    pricePerLb: 23,
     origin: "Yirgacheffe, Ethiopia",
     roastLevel: "Light",
     description:
@@ -37,23 +67,11 @@ const products: ProductSeed[] = [
     imageFile: "ethiopia-yirgacheffe.jpg",
   },
   {
-    title: "Ethiopia Yirgacheffe",
-    handle: "ethiopia-yirgacheffe-5lb",
-    category: "Single-Origin Roasts",
-    format: "5 lb Bag",
-    usd: 75,
-    origin: "Yirgacheffe, Ethiopia",
-    roastLevel: "Light",
-    description:
-      "<p>The bulk-bag option for our washed Yirgacheffe - bright and floral with notes of <strong>jasmine, bergamot, and lemon zest</strong>. Same roast, same farm, priced for cafes and heavy home-brewers who don't want to reorder every two weeks.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Yirgacheffe, Ethiopia</li><li><strong>Process:</strong> Washed</li><li><strong>Altitude:</strong> 1,900-2,200m</li><li><strong>Roast Level:</strong> Light</li></ul>",
-    imageFile: "ethiopia-yirgacheffe.jpg",
-  },
-  {
+    kind: "bag",
     title: "Colombia Huila",
-    handle: "colombia-huila-12oz",
+    handle: "colombia-huila",
     category: "Single-Origin Roasts",
-    format: "12 oz Bag",
-    usd: 17,
+    pricePerLb: 19,
     origin: "Huila, Colombia",
     roastLevel: "Medium",
     description:
@@ -61,11 +79,11 @@ const products: ProductSeed[] = [
     imageFile: "colombia-huila.jpg",
   },
   {
+    kind: "bag",
     title: "Kenya AA",
-    handle: "kenya-aa-12oz",
+    handle: "kenya-aa",
     category: "Single-Origin Roasts",
-    format: "12 oz Bag",
-    usd: 21,
+    pricePerLb: 24,
     origin: "Nyeri, Kenya",
     roastLevel: "Medium-Light",
     description:
@@ -73,11 +91,11 @@ const products: ProductSeed[] = [
     imageFile: "kenya-aa.jpg",
   },
   {
+    kind: "bag",
     title: "Sumatra Mandheling",
-    handle: "sumatra-mandheling-12oz",
+    handle: "sumatra-mandheling",
     category: "Single-Origin Roasts",
-    format: "12 oz Bag",
-    usd: 18,
+    pricePerLb: 20,
     origin: "Mandailing, Sumatra",
     roastLevel: "Dark",
     description:
@@ -85,11 +103,11 @@ const products: ProductSeed[] = [
     imageFile: "sumatra-mandheling.jpg",
   },
   {
+    kind: "bag",
     title: "Amber Hour Signature Blend",
-    handle: "signature-blend-12oz",
+    handle: "signature-blend",
     category: "House Blends",
-    format: "12 oz Bag",
-    usd: 16,
+    pricePerLb: 18,
     origin: "Colombia & Brazil",
     roastLevel: "Medium",
     description:
@@ -97,23 +115,11 @@ const products: ProductSeed[] = [
     imageFile: "signature-blend.jpg",
   },
   {
-    title: "Amber Hour Signature Blend",
-    handle: "signature-blend-5lb",
-    category: "House Blends",
-    format: "5 lb Bag",
-    usd: 65,
-    origin: "Colombia & Brazil",
-    roastLevel: "Medium",
-    description:
-      "<p>The bulk-bag option for our flagship blend - <strong>milk chocolate, hazelnut, and brown butter</strong> notes, smooth enough for drip and balanced enough for milk drinks. Priced for cafes and anyone who doesn't want to run out mid-week.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Colombia &amp; Brazil</li><li><strong>Process:</strong> Washed &amp; Natural</li><li><strong>Roast Level:</strong> Medium</li></ul>",
-    imageFile: "signature-blend.jpg",
-  },
-  {
+    kind: "bag",
     title: "Midnight Espresso Blend",
-    handle: "midnight-espresso-12oz",
+    handle: "midnight-espresso",
     category: "House Blends",
-    format: "12 oz Bag",
-    usd: 18,
+    pricePerLb: 20,
     origin: "Brazil, Guatemala & Sumatra",
     roastLevel: "Dark",
     description:
@@ -121,11 +127,11 @@ const products: ProductSeed[] = [
     imageFile: "midnight-espresso.jpg",
   },
   {
+    kind: "bag",
     title: "Sunrise Decaf Blend",
-    handle: "sunrise-decaf-12oz",
+    handle: "sunrise-decaf",
     category: "House Blends",
-    format: "12 oz Bag",
-    usd: 17,
+    pricePerLb: 19,
     origin: "Colombia (Swiss Water Process)",
     roastLevel: "Medium",
     description:
@@ -133,11 +139,11 @@ const products: ProductSeed[] = [
     imageFile: "sunrise-decaf.jpg",
   },
   {
+    kind: "bottle",
     title: "Cold Brew Concentrate",
-    handle: "cold-brew-concentrate-32oz",
+    handle: "cold-brew-concentrate",
     category: "Cold Brew & Ready-to-Drink",
-    format: "32 oz Bottle",
-    usd: 14,
+    bottlePrices: { "32 oz": 14, "64 oz": 25 },
     origin: "Brazil & Colombia",
     roastLevel: "Medium-Dark",
     description:
@@ -185,9 +191,19 @@ async function uploadFile(container: MedusaContainer, filePath: string) {
   return result[0].url;
 }
 
+const GRAMS_PER_LB = 454;
+const GRAMS_PER_OZ = 28;
+
 /**
  * Creates the coffee categories, options, and products. Reused by the
  * fresh-install seed script.
+ *
+ * Bag coffees get a Grind x Bag Size variant matrix (9 variants each) so
+ * the storefront's option-based filtering has real, shared facets to show
+ * off across the whole catalog. The cold brew bottle uses its own Bottle
+ * Size option instead - grind doesn't apply to a liquid product, and
+ * forcing it to share the bag options would produce nonsense combinations
+ * (e.g. a "10 lb, Espresso Ground" bottle of cold brew).
  */
 export async function seedCoffeeCatalog(
   container: MedusaContainer,
@@ -204,28 +220,30 @@ export async function seedCoffeeCatalog(
       })),
     },
   });
+  const categoryIdByName = new Map(categoryResult.map((c) => [c.name, c.id]));
 
-  // A shared (non-exclusive) option so "Format" shows up as a cross-product
-  // filter facet in the storefront, rather than a multi-variant picker on a
-  // single product.
-  const formats = Array.from(new Set(products.map((p) => p.format)));
+  // Shared (non-exclusive) options so they show up as cross-product filter
+  // facets in the storefront, not just per-product variant pickers.
   const { result: optionResult } = await createProductOptionsWorkflow(
     container
   ).run({
     input: {
-      product_options: [{ title: "Format", values: formats }],
+      product_options: [
+        { title: "Grind", values: [...GRIND_VALUES] },
+        { title: "Bag Size", values: [...BAG_SIZE_VALUES] },
+        { title: "Bottle Size", values: [...BOTTLE_SIZE_VALUES] },
+      ],
     },
   });
-  const formatOption = optionResult[0];
-
-  const categoryIdByName = new Map(categoryResult.map((c) => [c.name, c.id]));
+  const grindOption = optionResult.find((o) => o.title === "Grind")!;
+  const bagSizeOption = optionResult.find((o) => o.title === "Bag Size")!;
+  const bottleSizeOption = optionResult.find((o) => o.title === "Bottle Size")!;
 
   type ProductInput = {
     title: string;
     category_ids: string[];
     description: string;
     handle: string;
-    weight: number;
     status: ProductStatus;
     shipping_profile_id: string;
     metadata: Record<string, string>;
@@ -234,6 +252,7 @@ export async function seedCoffeeCatalog(
     variants: {
       title: string;
       sku: string;
+      weight: number;
       options: Record<string, string>;
       prices: { amount: number; currency_code: string }[];
     }[];
@@ -247,12 +266,39 @@ export async function seedCoffeeCatalog(
       join(productImageDir, p.imageFile)
     );
 
+    const variants: ProductInput["variants"] = [];
+    if (p.kind === "bag") {
+      for (const bagSize of BAG_SIZE_VALUES) {
+        const lb = BAG_SIZE_LB[bagSize];
+        const price = Math.round(p.pricePerLb * lb * BAG_SIZE_DISCOUNT[bagSize]);
+        for (const grind of GRIND_VALUES) {
+          variants.push({
+            title: `${grind} / ${bagSize}`,
+            sku: `${p.handle.toUpperCase()}-${grind.slice(0, 2).toUpperCase()}-${bagSize.replace(" lb", "LB")}`,
+            weight: lb * GRAMS_PER_LB,
+            options: { Grind: grind, "Bag Size": bagSize },
+            prices: [{ amount: price, currency_code: "usd" }],
+          });
+        }
+      }
+    } else {
+      for (const bottleSize of BOTTLE_SIZE_VALUES) {
+        const oz = parseInt(bottleSize, 10);
+        variants.push({
+          title: bottleSize,
+          sku: `${p.handle.toUpperCase()}-${bottleSize.replace(" oz", "OZ")}`,
+          weight: oz * GRAMS_PER_OZ,
+          options: { "Bottle Size": bottleSize },
+          prices: [{ amount: p.bottlePrices[bottleSize], currency_code: "usd" }],
+        });
+      }
+    }
+
     productsInput.push({
       title: p.title,
       category_ids: [categoryIdByName.get(p.category)!],
       description: p.description,
       handle: p.handle,
-      weight: 500,
       status: ProductStatus.PUBLISHED,
       shipping_profile_id: opts.shippingProfileId,
       metadata: {
@@ -260,17 +306,11 @@ export async function seedCoffeeCatalog(
         roast_level: p.roastLevel,
       },
       images: [{ url: imageUrl }],
-      options: [{ id: formatOption.id }],
-      variants: [
-        {
-          title: p.format,
-          sku: `${p.handle.toUpperCase()}`,
-          options: {
-            Format: p.format,
-          },
-          prices: [{ amount: p.usd, currency_code: "usd" }],
-        },
-      ],
+      options:
+        p.kind === "bag"
+          ? [{ id: grindOption.id }, { id: bagSizeOption.id }]
+          : [{ id: bottleSizeOption.id }],
+      variants,
       sales_channels: [{ id: opts.salesChannelId }],
     });
   }
