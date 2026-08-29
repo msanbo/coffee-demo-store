@@ -8,6 +8,15 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 // checkout) at boot.
 const stripeEnabled = !!process.env.STRIPE_API_KEY
 
+// Same reasoning - fall back to local disk storage if R2 isn't configured
+// (e.g. local dev) rather than crashing on boot.
+const r2Enabled =
+  !!process.env.R2_ACCOUNT_ID &&
+  !!process.env.R2_BUCKET &&
+  !!process.env.R2_ACCESS_KEY_ID &&
+  !!process.env.R2_SECRET_ACCESS_KEY &&
+  !!process.env.R2_PUBLIC_BASE_URL
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
@@ -49,17 +58,36 @@ module.exports = defineConfig({
       resolve: '@medusajs/medusa/file',
       options: {
         providers: [
-          {
-            resolve: '@medusajs/file-local',
-            id: 'local',
-            options: {
-              backend_url: `${process.env.BACKEND_URL || 'http://localhost:9000'}/static`,
-              upload_dir: process.env.STATIC_UPLOAD_DIR,
-              private_upload_dir: process.env.STATIC_UPLOAD_DIR
-                ? join(process.env.STATIC_UPLOAD_DIR, 'private')
-                : undefined,
-            },
-          },
+          r2Enabled
+            ? {
+                resolve: '@medusajs/file-s3',
+                id: 's3',
+                options: {
+                  fileUrl: process.env.R2_PUBLIC_BASE_URL,
+                  accessKeyId: process.env.R2_ACCESS_KEY_ID,
+                  secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+                  region: 'auto',
+                  bucket: process.env.R2_BUCKET,
+                  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+                  prefix: process.env.R2_PREFIX || 'coffee-demo/',
+                  // R2 doesn't support per-object ACLs the way S3 does -
+                  // access is controlled at the bucket level (public via
+                  // r2.dev/custom domain, or private). Sending an ACL header
+                  // causes R2 to reject the request, so disable it.
+                  acl: false,
+                },
+              }
+            : {
+                resolve: '@medusajs/file-local',
+                id: 'local',
+                options: {
+                  backend_url: `${process.env.BACKEND_URL || 'http://localhost:9000'}/static`,
+                  upload_dir: process.env.STATIC_UPLOAD_DIR,
+                  private_upload_dir: process.env.STATIC_UPLOAD_DIR
+                    ? join(process.env.STATIC_UPLOAD_DIR, 'private')
+                    : undefined,
+                },
+              },
         ],
       },
     },

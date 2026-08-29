@@ -43,6 +43,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "coffee-api.3-140-111-72.sslip.io",
       },
+      {
+        protocol: "https",
+        hostname: "pub-96887c679f8e4c43a76cfbb379f79246.r2.dev",
+      },
       ...(S3_HOSTNAME && S3_PATHNAME
         ? [
             {
