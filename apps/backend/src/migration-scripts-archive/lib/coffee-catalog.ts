@@ -1,0 +1,285 @@
+import { readFileSync } from "fs";
+import { extname, join } from "path";
+import { MedusaContainer } from "@medusajs/framework";
+import { ProductStatus } from "@medusajs/framework/utils";
+import {
+  createProductCategoriesWorkflow,
+  createProductOptionsWorkflow,
+  createProductsWorkflow,
+  uploadFilesWorkflow,
+} from "@medusajs/medusa/core-flows";
+
+const productImageDir = join(__dirname, "../assets/product-images");
+
+type ProductSeed = {
+  title: string;
+  handle: string;
+  category: string;
+  format: string;
+  usd: number;
+  origin: string;
+  roastLevel: string;
+  description: string;
+  imageFile: string;
+};
+
+const products: ProductSeed[] = [
+  {
+    title: "Ethiopia Yirgacheffe",
+    handle: "ethiopia-yirgacheffe-12oz",
+    category: "Single-Origin Roasts",
+    format: "12 oz Bag",
+    usd: 19,
+    origin: "Yirgacheffe, Ethiopia",
+    roastLevel: "Light",
+    description:
+      "<p>Grown at high altitude in the birthplace of coffee, this washed Yirgacheffe is bright and floral with a tea-like body. Expect notes of <strong>jasmine, bergamot, and lemon zest</strong>, finishing clean and sweet. A favorite among our light-roast drinkers who want a cup that tastes like the farm it came from.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Yirgacheffe, Ethiopia</li><li><strong>Process:</strong> Washed</li><li><strong>Altitude:</strong> 1,900-2,200m</li><li><strong>Roast Level:</strong> Light</li></ul>",
+    imageFile: "ethiopia-yirgacheffe.jpg",
+  },
+  {
+    title: "Ethiopia Yirgacheffe",
+    handle: "ethiopia-yirgacheffe-5lb",
+    category: "Single-Origin Roasts",
+    format: "5 lb Bag",
+    usd: 75,
+    origin: "Yirgacheffe, Ethiopia",
+    roastLevel: "Light",
+    description:
+      "<p>The bulk-bag option for our washed Yirgacheffe - bright and floral with notes of <strong>jasmine, bergamot, and lemon zest</strong>. Same roast, same farm, priced for cafes and heavy home-brewers who don't want to reorder every two weeks.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Yirgacheffe, Ethiopia</li><li><strong>Process:</strong> Washed</li><li><strong>Altitude:</strong> 1,900-2,200m</li><li><strong>Roast Level:</strong> Light</li></ul>",
+    imageFile: "ethiopia-yirgacheffe.jpg",
+  },
+  {
+    title: "Colombia Huila",
+    handle: "colombia-huila-12oz",
+    category: "Single-Origin Roasts",
+    format: "12 oz Bag",
+    usd: 17,
+    origin: "Huila, Colombia",
+    roastLevel: "Medium",
+    description:
+      "<p>A reliable, well-rounded cup from the Huila region's rich volcanic soil. Balanced sweetness with notes of <strong>caramel, red apple, and toasted almond</strong> - the roast most of our customers reach for on a normal Tuesday.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Huila, Colombia</li><li><strong>Process:</strong> Washed</li><li><strong>Altitude:</strong> 1,600-1,900m</li><li><strong>Roast Level:</strong> Medium</li></ul>",
+    imageFile: "colombia-huila.jpg",
+  },
+  {
+    title: "Kenya AA",
+    handle: "kenya-aa-12oz",
+    category: "Single-Origin Roasts",
+    format: "12 oz Bag",
+    usd: 21,
+    origin: "Nyeri, Kenya",
+    roastLevel: "Medium-Light",
+    description:
+      "<p>Grown at high elevation and processed with care, this AA-grade lot delivers the winey acidity Kenyan coffee is known for. Bold notes of <strong>black currant, grapefruit, and brown sugar</strong> make this our most requested single-origin.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Nyeri, Kenya</li><li><strong>Process:</strong> Washed</li><li><strong>Altitude:</strong> 1,700-2,000m</li><li><strong>Roast Level:</strong> Medium-Light</li></ul>",
+    imageFile: "kenya-aa.jpg",
+  },
+  {
+    title: "Sumatra Mandheling",
+    handle: "sumatra-mandheling-12oz",
+    category: "Single-Origin Roasts",
+    format: "12 oz Bag",
+    usd: 18,
+    origin: "Mandailing, Sumatra",
+    roastLevel: "Dark",
+    description:
+      "<p>Wet-hulled and full-bodied, this is the roast for people who want their coffee to taste like coffee. Earthy and herbal with notes of <strong>dark chocolate, cedar, and dried fig</strong>, and almost no acidity - low and slow the whole way down.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Mandailing, Sumatra</li><li><strong>Process:</strong> Wet-hulled</li><li><strong>Altitude:</strong> 1,100-1,500m</li><li><strong>Roast Level:</strong> Dark</li></ul>",
+    imageFile: "sumatra-mandheling.jpg",
+  },
+  {
+    title: "Amber Hour Signature Blend",
+    handle: "signature-blend-12oz",
+    category: "House Blends",
+    format: "12 oz Bag",
+    usd: 16,
+    origin: "Colombia & Brazil",
+    roastLevel: "Medium",
+    description:
+      "<p>Our flagship blend, built to be the coffee you make every single morning without thinking twice. A Colombia/Brazil base gives it <strong>milk chocolate, hazelnut, and brown butter</strong> notes - smooth enough for drip, balanced enough for milk drinks.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Colombia &amp; Brazil</li><li><strong>Process:</strong> Washed &amp; Natural</li><li><strong>Roast Level:</strong> Medium</li></ul>",
+    imageFile: "signature-blend.jpg",
+  },
+  {
+    title: "Amber Hour Signature Blend",
+    handle: "signature-blend-5lb",
+    category: "House Blends",
+    format: "5 lb Bag",
+    usd: 65,
+    origin: "Colombia & Brazil",
+    roastLevel: "Medium",
+    description:
+      "<p>The bulk-bag option for our flagship blend - <strong>milk chocolate, hazelnut, and brown butter</strong> notes, smooth enough for drip and balanced enough for milk drinks. Priced for cafes and anyone who doesn't want to run out mid-week.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Colombia &amp; Brazil</li><li><strong>Process:</strong> Washed &amp; Natural</li><li><strong>Roast Level:</strong> Medium</li></ul>",
+    imageFile: "signature-blend.jpg",
+  },
+  {
+    title: "Midnight Espresso Blend",
+    handle: "midnight-espresso-12oz",
+    category: "House Blends",
+    format: "12 oz Bag",
+    usd: 18,
+    origin: "Brazil, Guatemala & Sumatra",
+    roastLevel: "Dark",
+    description:
+      "<p>Built specifically to pull good shots - low acidity, heavy body, and a sweetness that cuts through milk without disappearing. Notes of <strong>dark caramel, cocoa nib, and toasted walnut</strong>. Works just as well as a bold drip cup if that's your thing.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Brazil, Guatemala &amp; Sumatra</li><li><strong>Process:</strong> Natural &amp; Washed</li><li><strong>Roast Level:</strong> Dark</li></ul>",
+    imageFile: "midnight-espresso.jpg",
+  },
+  {
+    title: "Sunrise Decaf Blend",
+    handle: "sunrise-decaf-12oz",
+    category: "House Blends",
+    format: "12 oz Bag",
+    usd: 17,
+    origin: "Colombia (Swiss Water Process)",
+    roastLevel: "Medium",
+    description:
+      "<p>Decaffeinated using the Swiss Water Process - no chemical solvents, just water, temperature, and time. You'd never guess it's decaf: full body, real sweetness, notes of <strong>toffee, pecan, and dried cherry</strong>.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Colombia</li><li><strong>Decaf Process:</strong> Swiss Water Process</li><li><strong>Roast Level:</strong> Medium</li></ul>",
+    imageFile: "sunrise-decaf.jpg",
+  },
+  {
+    title: "Cold Brew Concentrate",
+    handle: "cold-brew-concentrate-32oz",
+    category: "Cold Brew & Ready-to-Drink",
+    format: "32 oz Bottle",
+    usd: 14,
+    origin: "Brazil & Colombia",
+    roastLevel: "Medium-Dark",
+    description:
+      "<p>Steeped cold for 18 hours, this concentrate is smooth and low-acid with notes of <strong>dark chocolate and molasses</strong>. Cut 1:1 with water or milk over ice, or use it as an espresso substitute in any milk drink.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Brazil &amp; Colombia</li><li><strong>Steep Time:</strong> 18 hours</li><li><strong>Dilution:</strong> 1:1 recommended</li></ul>",
+    imageFile: "cold-brew-concentrate.jpg",
+  },
+];
+
+export const COFFEE_CATEGORY_NAMES = Array.from(
+  new Set(products.map((p) => p.category))
+);
+
+export const COFFEE_PRODUCT_HANDLES = products.map((p) => p.handle);
+
+// Medusa's default handle generation keeps characters like "&", which
+// aren't safe in a URL path segment. Slugify explicitly instead.
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/&/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const mimeTypeForExt: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+};
+
+async function uploadFile(container: MedusaContainer, filePath: string) {
+  const ext = extname(filePath);
+  const { result } = await uploadFilesWorkflow(container).run({
+    input: {
+      files: [
+        {
+          filename: `${Date.now()}-${filePath.split("/").pop()}`,
+          mimeType: mimeTypeForExt[ext.toLowerCase()] ?? "application/octet-stream",
+          content: readFileSync(filePath).toString("base64"),
+          access: "public" as const,
+        },
+      ],
+    },
+  });
+  return result[0].url;
+}
+
+/**
+ * Creates the coffee categories, options, and products. Reused by the
+ * fresh-install seed script.
+ */
+export async function seedCoffeeCatalog(
+  container: MedusaContainer,
+  opts: { salesChannelId: string; shippingProfileId: string }
+) {
+  const { result: categoryResult } = await createProductCategoriesWorkflow(
+    container
+  ).run({
+    input: {
+      product_categories: COFFEE_CATEGORY_NAMES.map((name) => ({
+        name,
+        handle: slugify(name),
+        is_active: true,
+      })),
+    },
+  });
+
+  // A shared (non-exclusive) option so "Format" shows up as a cross-product
+  // filter facet in the storefront, rather than a multi-variant picker on a
+  // single product.
+  const formats = Array.from(new Set(products.map((p) => p.format)));
+  const { result: optionResult } = await createProductOptionsWorkflow(
+    container
+  ).run({
+    input: {
+      product_options: [{ title: "Format", values: formats }],
+    },
+  });
+  const formatOption = optionResult[0];
+
+  const categoryIdByName = new Map(categoryResult.map((c) => [c.name, c.id]));
+
+  type ProductInput = {
+    title: string;
+    category_ids: string[];
+    description: string;
+    handle: string;
+    weight: number;
+    status: ProductStatus;
+    shipping_profile_id: string;
+    metadata: Record<string, string>;
+    images: { url: string }[];
+    options: { id: string }[];
+    variants: {
+      title: string;
+      sku: string;
+      options: Record<string, string>;
+      prices: { amount: number; currency_code: string }[];
+    }[];
+    sales_channels: { id: string }[];
+  };
+
+  const productsInput: ProductInput[] = [];
+  for (const p of products) {
+    const imageUrl = await uploadFile(
+      container,
+      join(productImageDir, p.imageFile)
+    );
+
+    productsInput.push({
+      title: p.title,
+      category_ids: [categoryIdByName.get(p.category)!],
+      description: p.description,
+      handle: p.handle,
+      weight: 500,
+      status: ProductStatus.PUBLISHED,
+      shipping_profile_id: opts.shippingProfileId,
+      metadata: {
+        origin: p.origin,
+        roast_level: p.roastLevel,
+      },
+      images: [{ url: imageUrl }],
+      options: [{ id: formatOption.id }],
+      variants: [
+        {
+          title: p.format,
+          sku: `${p.handle.toUpperCase()}`,
+          options: {
+            Format: p.format,
+          },
+          prices: [{ amount: p.usd, currency_code: "usd" }],
+        },
+      ],
+      sales_channels: [{ id: opts.salesChannelId }],
+    });
+  }
+
+  await createProductsWorkflow(container).run({
+    input: {
+      products: productsInput,
+    },
+  });
+
+  return { categoryResult };
+}
