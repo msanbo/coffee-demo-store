@@ -8,8 +8,8 @@ const Banner = () => {
       <Image
         src="/banner.png"
         alt={SITE_NAME}
-        width={1536}
-        height={1024}
+        width={1936}
+        height={544}
         priority
         className="h-auto w-full"
       />
