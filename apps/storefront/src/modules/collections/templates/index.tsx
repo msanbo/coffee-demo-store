@@ -14,12 +14,14 @@ export default function CollectionTemplate({
   page,
   countryCode,
   optionValueIds,
+  tagIds,
 }: {
   sortBy?: SortOptions
   collection: HttpTypes.StoreCollection
   page?: string
   countryCode: string
   optionValueIds?: OptionValueIds
+  tagIds?: string[]
 }) {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
@@ -46,6 +48,7 @@ export default function CollectionTemplate({
             collectionId={collection.id}
             countryCode={countryCode}
             optionValueIds={optionValueIds}
+            tagIds={tagIds}
           />
         </Suspense>
       </div>

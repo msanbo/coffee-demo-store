@@ -8,9 +8,11 @@ import {
   parseOptionValueIds,
 } from "@lib/util/product-option-filters"
 import { CATEGORY_QUERY_KEY, parseCategoryIds } from "@lib/util/category-filters"
+import { TAG_QUERY_KEY, parseTagIds } from "@lib/util/tag-filters"
 import CategoryFilter from "./category-filter"
 import OptionsPicker from "./options-picker"
 import SortProducts, { SortOptions } from "./sort-products"
+import TagFilter from "./tag-filter"
 
 type RefinementListProps = {
   sortBy: SortOptions
@@ -81,6 +83,14 @@ const RefinementList = ({
       )
     })
 
+  const selectedTagIds = useMemo(() => parseTagIds(searchParams), [searchParams])
+
+  const setTagIds = (tagIds: string[]) =>
+    updateQueryParams((params) => {
+      params.delete(TAG_QUERY_KEY)
+      tagIds.forEach((tagId) => params.append(TAG_QUERY_KEY, tagId))
+    })
+
   return (
     <div className="flex flex-col gap-12 py-4 mb-8 small:px-0 pl-6 small:min-w-[250px] small:ml-[1.675rem]">
       <SortProducts sortBy={sortBy} setQueryParams={setQueryParams} data-testid="sort-by" />
@@ -96,6 +106,7 @@ const RefinementList = ({
           setOptionValueIds={setOptionValueIds}
         />
       )}
+      <TagFilter selectedTagIds={selectedTagIds} setTagIds={setTagIds} />
     </div>
   )
 }

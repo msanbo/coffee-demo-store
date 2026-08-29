@@ -13,6 +13,7 @@ const StoreTemplate = ({
   countryCode,
   optionValueIds,
   categoryIds,
+  tagIds,
   q,
 }: {
   sortBy?: SortOptions
@@ -20,6 +21,7 @@ const StoreTemplate = ({
   countryCode: string
   optionValueIds?: OptionValueIds
   categoryIds?: string[]
+  tagIds?: string[]
   q?: string
 }) => {
   const pageNumber = page ? parseInt(page) : 1
@@ -45,6 +47,7 @@ const StoreTemplate = ({
               countryCode={countryCode}
               optionValueIds={optionValueIds}
               categoryIds={categoryIds}
+              tagIds={tagIds}
               q={q}
             />
           </Suspense>

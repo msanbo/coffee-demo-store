@@ -1,10 +1,12 @@
 import { readFileSync } from "fs";
 import { extname, join } from "path";
+import { Client } from "pg";
 import { MedusaContainer } from "@medusajs/framework";
 import { ProductStatus } from "@medusajs/framework/utils";
 import {
   createProductCategoriesWorkflow,
   createProductOptionsWorkflow,
+  createProductTagsWorkflow,
   createProductsWorkflow,
   uploadFilesWorkflow,
 } from "@medusajs/medusa/core-flows";
@@ -35,6 +37,7 @@ type BagCoffeeSeed = {
   pricePerLb: number;
   origin: string;
   roastLevel: string;
+  process?: string;
   description: string;
   imageFile: string;
 };
@@ -47,6 +50,7 @@ type BottleCoffeeSeed = {
   bottlePrices: Record<(typeof BOTTLE_SIZE_VALUES)[number], number>;
   origin: string;
   roastLevel: string;
+  process?: string;
   description: string;
   imageFile: string;
 };
@@ -62,6 +66,7 @@ const products: ProductSeed[] = [
     pricePerLb: 23,
     origin: "Yirgacheffe, Ethiopia",
     roastLevel: "Light",
+    process: "Washed Process",
     description:
       "<p>Grown at high altitude in the birthplace of coffee, this washed Yirgacheffe is bright and floral with a tea-like body. Expect notes of <strong>jasmine, bergamot, and lemon zest</strong>, finishing clean and sweet. A favorite among our light-roast drinkers who want a cup that tastes like the farm it came from.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Yirgacheffe, Ethiopia</li><li><strong>Process:</strong> Washed</li><li><strong>Altitude:</strong> 1,900-2,200m</li><li><strong>Roast Level:</strong> Light</li></ul>",
     imageFile: "ethiopia-yirgacheffe.jpg",
@@ -74,6 +79,7 @@ const products: ProductSeed[] = [
     pricePerLb: 19,
     origin: "Huila, Colombia",
     roastLevel: "Medium",
+    process: "Washed Process",
     description:
       "<p>A reliable, well-rounded cup from the Huila region's rich volcanic soil. Balanced sweetness with notes of <strong>caramel, red apple, and toasted almond</strong> - the roast most of our customers reach for on a normal Tuesday.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Huila, Colombia</li><li><strong>Process:</strong> Washed</li><li><strong>Altitude:</strong> 1,600-1,900m</li><li><strong>Roast Level:</strong> Medium</li></ul>",
     imageFile: "colombia-huila.jpg",
@@ -86,6 +92,7 @@ const products: ProductSeed[] = [
     pricePerLb: 24,
     origin: "Nyeri, Kenya",
     roastLevel: "Medium-Light",
+    process: "Washed Process",
     description:
       "<p>Grown at high elevation and processed with care, this AA-grade lot delivers the winey acidity Kenyan coffee is known for. Bold notes of <strong>black currant, grapefruit, and brown sugar</strong> make this our most requested single-origin.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Nyeri, Kenya</li><li><strong>Process:</strong> Washed</li><li><strong>Altitude:</strong> 1,700-2,000m</li><li><strong>Roast Level:</strong> Medium-Light</li></ul>",
     imageFile: "kenya-aa.jpg",
@@ -98,6 +105,7 @@ const products: ProductSeed[] = [
     pricePerLb: 20,
     origin: "Mandailing, Sumatra",
     roastLevel: "Dark",
+    process: "Wet-Hulled Process",
     description:
       "<p>Wet-hulled and full-bodied, this is the roast for people who want their coffee to taste like coffee. Earthy and herbal with notes of <strong>dark chocolate, cedar, and dried fig</strong>, and almost no acidity - low and slow the whole way down.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Mandailing, Sumatra</li><li><strong>Process:</strong> Wet-hulled</li><li><strong>Altitude:</strong> 1,100-1,500m</li><li><strong>Roast Level:</strong> Dark</li></ul>",
     imageFile: "sumatra-mandheling.jpg",
@@ -110,6 +118,7 @@ const products: ProductSeed[] = [
     pricePerLb: 18,
     origin: "Colombia & Brazil",
     roastLevel: "Medium",
+    process: "Washed & Natural Process",
     description:
       "<p>Our flagship blend, built to be the coffee you make every single morning without thinking twice. A Colombia/Brazil base gives it <strong>milk chocolate, hazelnut, and brown butter</strong> notes - smooth enough for drip, balanced enough for milk drinks.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Colombia &amp; Brazil</li><li><strong>Process:</strong> Washed &amp; Natural</li><li><strong>Roast Level:</strong> Medium</li></ul>",
     imageFile: "signature-blend.jpg",
@@ -122,6 +131,7 @@ const products: ProductSeed[] = [
     pricePerLb: 20,
     origin: "Brazil, Guatemala & Sumatra",
     roastLevel: "Dark",
+    process: "Washed & Natural Process",
     description:
       "<p>Built specifically to pull good shots - low acidity, heavy body, and a sweetness that cuts through milk without disappearing. Notes of <strong>dark caramel, cocoa nib, and toasted walnut</strong>. Works just as well as a bold drip cup if that's your thing.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Brazil, Guatemala &amp; Sumatra</li><li><strong>Process:</strong> Natural &amp; Washed</li><li><strong>Roast Level:</strong> Dark</li></ul>",
     imageFile: "midnight-espresso.jpg",
@@ -134,6 +144,7 @@ const products: ProductSeed[] = [
     pricePerLb: 19,
     origin: "Colombia (Swiss Water Process)",
     roastLevel: "Medium",
+    process: "Swiss Water Decaf",
     description:
       "<p>Decaffeinated using the Swiss Water Process - no chemical solvents, just water, temperature, and time. You'd never guess it's decaf: full body, real sweetness, notes of <strong>toffee, pecan, and dried cherry</strong>.</p><strong>Details:</strong><ul><li><strong>Origin:</strong> Colombia</li><li><strong>Decaf Process:</strong> Swiss Water Process</li><li><strong>Roast Level:</strong> Medium</li></ul>",
     imageFile: "sunrise-decaf.jpg",
@@ -225,15 +236,22 @@ export async function seedCoffeeCatalog(
   const categoryIdByName = new Map(categoryResult.map((c) => [c.name, c.id]));
 
   // Shared (non-exclusive) options so they show up as cross-product filter
-  // facets in the storefront, not just per-product variant pickers.
+  // facets in the storefront, not just per-product variant pickers. Explicit
+  // ranks so "2 lb / 5 lb / 10 lb" etc. render in a defined order everywhere
+  // (variant picker, filter sidebar) - Medusa doesn't order option values by
+  // anything meaningful without this, so it'd otherwise vary by whatever
+  // order the API happens to return them in.
+  const rankMap = (values: readonly string[]) =>
+    Object.fromEntries(values.map((v, i) => [v, i]));
+
   const { result: optionResult } = await createProductOptionsWorkflow(
     container
   ).run({
     input: {
       product_options: [
-        { title: "Grind", values: [...GRIND_VALUES] },
-        { title: "Bag Size", values: [...BAG_SIZE_VALUES] },
-        { title: "Bottle Size", values: [...BOTTLE_SIZE_VALUES] },
+        { title: "Grind", values: [...GRIND_VALUES], ranks: rankMap(GRIND_VALUES) },
+        { title: "Bag Size", values: [...BAG_SIZE_VALUES], ranks: rankMap(BAG_SIZE_VALUES) },
+        { title: "Bottle Size", values: [...BOTTLE_SIZE_VALUES], ranks: rankMap(BOTTLE_SIZE_VALUES) },
       ],
     },
   });
@@ -241,9 +259,26 @@ export async function seedCoffeeCatalog(
   const bagSizeOption = optionResult.find((o) => o.title === "Bag Size")!;
   const bottleSizeOption = optionResult.find((o) => o.title === "Bottle Size")!;
 
+  // Roast level and process live in product.metadata for display, but
+  // metadata isn't a queryable filter - product tags are. Create one tag
+  // per distinct value so the storefront can build real facets (roast
+  // level, process) instead of a plain grid.
+  const tagValues = Array.from(
+    new Set(
+      products.flatMap((p) => [`${p.roastLevel} Roast`, p.process].filter(Boolean) as string[])
+    )
+  );
+  const { result: tagResult } = await createProductTagsWorkflow(container).run({
+    input: {
+      product_tags: tagValues.map((value) => ({ value })),
+    },
+  });
+  const tagIdByValue = new Map(tagResult.map((t) => [t.value, t.id]));
+
   type ProductInput = {
     title: string;
     category_ids: string[];
+    tag_ids: string[];
     description: string;
     handle: string;
     status: ProductStatus;
@@ -262,6 +297,14 @@ export async function seedCoffeeCatalog(
   };
 
   const productsInput: ProductInput[] = [];
+  // SKU -> intended display order, per product. createProductsWorkflow has
+  // no way to set variant_rank at creation time (it's not in
+  // CreateProductVariantDTO), so this gets applied in a follow-up SQL pass
+  // below, once we know the real variant IDs. Every variant currently comes
+  // back variant_rank: 0 without this - deterministic in code, but not
+  // reflected in the data Medusa actually stores.
+  const variantRankBySku = new Map<string, number>();
+
   for (const p of products) {
     const imageUrl = await uploadFile(
       container,
@@ -270,13 +313,15 @@ export async function seedCoffeeCatalog(
 
     const variants: ProductInput["variants"] = [];
     if (p.kind === "bag") {
+      let rank = 0;
       for (const bagSize of BAG_SIZE_VALUES) {
         const lb = BAG_SIZE_LB[bagSize];
         const price = Math.round(p.pricePerLb * lb * BAG_SIZE_DISCOUNT[bagSize]);
         for (const grind of GRIND_VALUES) {
+          const sku = `${p.handle.toUpperCase()}-${grind.slice(0, 2).toUpperCase()}-${bagSize.replace(" lb", "LB")}`;
           variants.push({
             title: `${grind} / ${bagSize}`,
-            sku: `${p.handle.toUpperCase()}-${grind.slice(0, 2).toUpperCase()}-${bagSize.replace(" lb", "LB")}`,
+            sku,
             weight: lb * GRAMS_PER_LB,
             options: { Grind: grind, "Bag Size": bagSize },
             prices: [
@@ -284,14 +329,17 @@ export async function seedCoffeeCatalog(
               { amount: eurAmount(price), currency_code: "eur" },
             ],
           });
+          variantRankBySku.set(sku, rank++);
         }
       }
     } else {
+      let rank = 0;
       for (const bottleSize of BOTTLE_SIZE_VALUES) {
         const oz = parseInt(bottleSize, 10);
+        const sku = `${p.handle.toUpperCase()}-${bottleSize.replace(" oz", "OZ")}`;
         variants.push({
           title: bottleSize,
-          sku: `${p.handle.toUpperCase()}-${bottleSize.replace(" oz", "OZ")}`,
+          sku,
           weight: oz * GRAMS_PER_OZ,
           options: { "Bottle Size": bottleSize },
           prices: [
@@ -299,12 +347,18 @@ export async function seedCoffeeCatalog(
             { amount: eurAmount(p.bottlePrices[bottleSize]), currency_code: "eur" },
           ],
         });
+        variantRankBySku.set(sku, rank++);
       }
     }
+
+    const tagIds = [tagIdByValue.get(`${p.roastLevel} Roast`), p.process ? tagIdByValue.get(p.process) : undefined].filter(
+      (id): id is string => !!id
+    );
 
     productsInput.push({
       title: p.title,
       category_ids: [categoryIdByName.get(p.category)!],
+      tag_ids: tagIds,
       description: p.description,
       handle: p.handle,
       status: ProductStatus.PUBLISHED,
@@ -312,6 +366,7 @@ export async function seedCoffeeCatalog(
       metadata: {
         origin: p.origin,
         roast_level: p.roastLevel,
+        ...(p.process ? { process: p.process } : {}),
       },
       images: [{ url: imageUrl }],
       options:
@@ -323,11 +378,39 @@ export async function seedCoffeeCatalog(
     });
   }
 
-  await createProductsWorkflow(container).run({
+  const { result: createdProducts } = await createProductsWorkflow(container).run({
     input: {
       products: productsInput,
     },
   });
 
+  await applyVariantRanks(createdProducts, variantRankBySku);
+
   return { categoryResult };
+}
+
+// createProductsWorkflow has no field for setting variant_rank at creation
+// time, so this runs as a direct SQL pass afterward using the real
+// DATABASE_URL - the same connection Medusa itself uses, just outside the
+// module/workflow layer since there's no DTO surface for this.
+async function applyVariantRanks(
+  createdProducts: { id: string; variants?: { id: string; sku?: string | null }[] }[],
+  variantRankBySku: Map<string, number>
+) {
+  const client = new Client({ connectionString: process.env.DATABASE_URL });
+  await client.connect();
+  try {
+    for (const product of createdProducts) {
+      for (const variant of product.variants ?? []) {
+        const rank = variant.sku ? variantRankBySku.get(variant.sku) : undefined;
+        if (rank === undefined) continue;
+        await client.query(
+          `UPDATE product_variant SET variant_rank = $1 WHERE id = $2`,
+          [rank, variant.id]
+        );
+      }
+    }
+  } finally {
+    await client.end();
+  }
 }

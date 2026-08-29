@@ -17,12 +17,14 @@ export default function CategoryTemplate({
   page,
   countryCode,
   optionValueIds,
+  tagIds,
 }: {
   category: HttpTypes.StoreProductCategory
   sortBy?: SortOptions
   page?: string
   countryCode: string
   optionValueIds?: OptionValueIds
+  tagIds?: string[]
 }) {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
@@ -100,6 +102,7 @@ export default function CategoryTemplate({
               categoryId={category.id}
               countryCode={countryCode}
               optionValueIds={optionValueIds}
+              tagIds={tagIds}
             />
           </Suspense>
         </div>
