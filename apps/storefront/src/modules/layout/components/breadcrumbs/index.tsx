@@ -118,7 +118,13 @@ const Breadcrumbs = () => {
     const prevSegment = index > 0 ? segments[index - 1] : null
 
     if (isLast && prevSegment && DYNAMIC_PARENTS.has(prevSegment)) {
-      crumbs.push({ label: dynamicLabel ?? titleCase(segment), href: "" })
+      // Skip the crumb entirely while the real title is loading, rather
+      // than showing a title-cased guess off the URL slug - that guess is
+      // often wrong (acronyms, unusual capitalization) and would otherwise
+      // be what server-rendered HTML and crawlers see before hydration.
+      if (dynamicLabel) {
+        crumbs.push({ label: dynamicLabel, href: "" })
+      }
       return
     }
 
