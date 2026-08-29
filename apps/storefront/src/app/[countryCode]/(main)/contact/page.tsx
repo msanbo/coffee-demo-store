@@ -6,7 +6,7 @@ import { Heading, Text } from "@modules/common/components/ui"
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: `Get in touch with ${SITE_NAME}.`,
+  description: `Get in touch with ${SITE_NAME}`,
 }
 
 export default function ContactPage() {

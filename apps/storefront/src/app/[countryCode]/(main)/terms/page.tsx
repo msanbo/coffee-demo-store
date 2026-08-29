@@ -7,7 +7,7 @@ import { Heading, Text } from "@modules/common/components/ui"
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
-  description: `The terms and conditions for using ${SITE_NAME}.`,
+  description: `The terms and conditions for using ${SITE_NAME}`,
 }
 
 const sections: AccordionItem[] = [

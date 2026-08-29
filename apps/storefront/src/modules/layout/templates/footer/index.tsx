@@ -64,7 +64,7 @@ export default async function Footer() {
         </nav>
 
         <Text className="txt-compact-small text-white">
-          © {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
+          © {new Date().getFullYear()} {SITE_NAME} All rights reserved.
         </Text>
       </div>
     </footer>

@@ -32,7 +32,9 @@ export default async function initial_data_seed({
     ModuleRegistrationName.FULFILLMENT
   );
 
-  const countries = ["us"];
+  const usCountries = ["us"];
+  const euCountries = ["de", "fr", "es", "it", "nl"];
+  const countries = [...usCountries, ...euCountries];
 
   logger.info("Seeding store data...");
   const {
@@ -81,6 +83,9 @@ export default async function initial_data_seed({
               currency_code: "usd",
               is_default: true,
             },
+            {
+              currency_code: "eur",
+            },
           ],
           default_sales_channel_id: defaultSalesChannel.id,
         },
@@ -95,13 +100,20 @@ export default async function initial_data_seed({
         {
           name: "United States",
           currency_code: "usd",
-          countries,
+          countries: usCountries,
+          payment_providers: ["pp_system_default"],
+        },
+        {
+          name: "Europe",
+          currency_code: "eur",
+          countries: euCountries,
           payment_providers: ["pp_system_default"],
         },
       ],
     },
   });
-  const region = regionResult[0];
+  const region = regionResult.find((r) => r.currency_code === "usd")!;
+  const euRegion = regionResult.find((r) => r.currency_code === "eur")!;
   logger.info("Finished seeding regions.");
 
   logger.info("Seeding tax regions...");
@@ -164,6 +176,13 @@ export default async function initial_data_seed({
           },
         ],
       },
+      {
+        name: "Europe",
+        geo_zones: euCountries.map((country_code) => ({
+          country_code,
+          type: "country" as const,
+        })),
+      },
     ],
   });
 
@@ -176,34 +195,63 @@ export default async function initial_data_seed({
     },
   });
 
-  const shippingOptionsData = [
+  const usShippingOptionsData = [
     { name: "USPS", code: "usps", description: "Standard USPS delivery.", amount: 20 },
     { name: "UPS Ground", code: "ups-ground", description: "Standard UPS ground delivery.", amount: 25 },
     { name: "UPS Second Day Air", code: "ups-2day", description: "Delivered in 2 business days.", amount: 50 },
     { name: "UPS Next Day Air", code: "ups-next-day", description: "Delivered the next business day.", amount: 75 },
   ];
+  const euShippingOptionsData = [
+    { name: "Standard EU Delivery", code: "eu-standard", description: "Standard delivery within the EU.", amount: 25 },
+    { name: "Express EU Delivery", code: "eu-express", description: "Delivered in 2-3 business days.", amount: 55 },
+  ];
+
+  const usServiceZone = fulfillmentSet.service_zones.find((z: { name: string }) => z.name === "United States")!;
+  const euServiceZone = fulfillmentSet.service_zones.find((z: { name: string }) => z.name === "Europe")!;
 
   await createShippingOptionsWorkflow(container).run({
-    input: shippingOptionsData.map((opt) => ({
-      name: opt.name,
-      price_type: "flat" as const,
-      provider_id: "manual_manual",
-      service_zone_id: fulfillmentSet.service_zones[0].id,
-      shipping_profile_id: shippingProfile.id,
-      type: {
-        label: opt.name,
-        description: opt.description,
-        code: opt.code,
-      },
-      prices: [
-        { currency_code: "usd", amount: opt.amount },
-        { region_id: region.id, amount: opt.amount },
-      ],
-      rules: [
-        { attribute: "enabled_in_store", value: "true", operator: "eq" as const },
-        { attribute: "is_return", value: "false", operator: "eq" as const },
-      ],
-    })),
+    input: [
+      ...usShippingOptionsData.map((opt) => ({
+        name: opt.name,
+        price_type: "flat" as const,
+        provider_id: "manual_manual",
+        service_zone_id: usServiceZone.id,
+        shipping_profile_id: shippingProfile.id,
+        type: {
+          label: opt.name,
+          description: opt.description,
+          code: opt.code,
+        },
+        prices: [
+          { currency_code: "usd", amount: opt.amount },
+          { region_id: region.id, amount: opt.amount },
+        ],
+        rules: [
+          { attribute: "enabled_in_store", value: "true", operator: "eq" as const },
+          { attribute: "is_return", value: "false", operator: "eq" as const },
+        ],
+      })),
+      ...euShippingOptionsData.map((opt) => ({
+        name: opt.name,
+        price_type: "flat" as const,
+        provider_id: "manual_manual",
+        service_zone_id: euServiceZone.id,
+        shipping_profile_id: shippingProfile.id,
+        type: {
+          label: opt.name,
+          description: opt.description,
+          code: opt.code,
+        },
+        prices: [
+          { currency_code: "eur", amount: opt.amount },
+          { region_id: euRegion.id, amount: opt.amount },
+        ],
+        rules: [
+          { attribute: "enabled_in_store", value: "true", operator: "eq" as const },
+          { attribute: "is_return", value: "false", operator: "eq" as const },
+        ],
+      })),
+    ],
   });
   logger.info("Finished seeding fulfillment data.");
 

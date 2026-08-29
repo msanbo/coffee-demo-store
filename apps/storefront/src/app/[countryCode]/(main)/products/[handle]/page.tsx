@@ -4,6 +4,7 @@ import { listProducts } from "@lib/data/products"
 import { getRegion, listRegions } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
+import { SITE_NAME } from "@lib/constants"
 
 type Props = {
   params: Promise<{ countryCode: string; handle: string }>
@@ -69,6 +70,11 @@ function getImagesForVariant(
   return product.images?.filter((i) => imageIdsMap.has(i.id)) ?? null
 }
 
+const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
+
+const truncate = (value: string, max: number) =>
+  value.length > max ? `${value.slice(0, max - 1).trim()}…` : value
+
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const { handle } = params
@@ -87,12 +93,25 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     notFound()
   }
 
+  const title = `${product.title} | ${SITE_NAME}`
+  const description = truncate(
+    product.description ? stripHtml(product.description) : `${product.title} - available now at ${SITE_NAME}`,
+    160
+  )
+
   return {
-    title: `${product.title} | Medusa Store`,
-    description: `${product.title}`,
+    title,
+    description,
     openGraph: {
-      title: `${product.title} | Medusa Store`,
-      description: `${product.title}`,
+      title,
+      description,
+      images: product.thumbnail ? [product.thumbnail] : [],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
       images: product.thumbnail ? [product.thumbnail] : [],
     },
   }

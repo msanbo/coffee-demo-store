@@ -10,7 +10,7 @@ import {
 import { CATEGORY_QUERY_KEY, parseCategoryIds } from "@lib/util/category-filters"
 import CategoryFilter from "./category-filter"
 import OptionsPicker from "./options-picker"
-import { SortOptions } from "./sort-products"
+import SortProducts, { SortOptions } from "./sort-products"
 
 type RefinementListProps = {
   sortBy: SortOptions
@@ -21,6 +21,7 @@ type RefinementListProps = {
 }
 
 const RefinementList = ({
+  sortBy,
   hideOptionsPicker = false,
   hideCategoryFilter = false,
 }: RefinementListProps) => {
@@ -48,6 +49,11 @@ const RefinementList = ({
     },
     [pathname, router, searchParams]
   )
+
+  const setQueryParams = (name: string, value: string) =>
+    updateQueryParams((params) => {
+      params.set(name, value)
+    })
 
   const selectedOptionValueIds = useMemo(
     () => parseOptionValueIds(searchParams),
@@ -77,6 +83,7 @@ const RefinementList = ({
 
   return (
     <div className="flex flex-col gap-12 py-4 mb-8 small:px-0 pl-6 small:min-w-[250px] small:ml-[1.675rem]">
+      <SortProducts sortBy={sortBy} setQueryParams={setQueryParams} data-testid="sort-by" />
       {!hideCategoryFilter && (
         <CategoryFilter
           selectedCategoryIds={selectedCategoryIds}

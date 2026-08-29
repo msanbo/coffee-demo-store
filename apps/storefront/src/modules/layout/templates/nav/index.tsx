@@ -2,11 +2,13 @@ import { Suspense } from "react"
 import Image from "next/image"
 
 import { listCategories } from "@lib/data/categories"
+import { listRegions } from "@lib/data/regions"
 import { SITE_NAME } from "@lib/constants"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import CartButton from "@modules/layout/components/cart-button"
 import MobileCartButton from "@modules/layout/components/mobile-cart-button"
 import MobileMenu from "@modules/layout/components/mobile-menu"
+import RegionSwitcher from "@modules/layout/components/region-switcher"
 import SearchBar from "@modules/layout/components/search-bar"
 import ShopDropdown from "@modules/layout/components/shop-dropdown"
 
@@ -15,6 +17,7 @@ export default async function Nav() {
   const topLevelCategories = (categories || []).filter(
     (category) => !category.parent_category
   )
+  const regions = (await listRegions()) || []
 
   return (
     <div className="sticky top-0 inset-x-0 z-50 group">
@@ -69,6 +72,7 @@ export default async function Nav() {
             >
               <CartButton />
             </Suspense>
+            <RegionSwitcher regions={regions} />
           </div>
 
           <div className="hidden medium:block">
@@ -76,6 +80,7 @@ export default async function Nav() {
           </div>
 
           <div className="flex items-center gap-x-4 medium:hidden">
+            <RegionSwitcher regions={regions} />
             <Suspense fallback={null}>
               <MobileCartButton />
             </Suspense>

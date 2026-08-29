@@ -193,6 +193,8 @@ async function uploadFile(container: MedusaContainer, filePath: string) {
 
 const GRAMS_PER_LB = 454;
 const GRAMS_PER_OZ = 28;
+const USD_TO_EUR = 0.92;
+const eurAmount = (usdAmount: number) => Math.round(usdAmount * USD_TO_EUR);
 
 /**
  * Creates the coffee categories, options, and products. Reused by the
@@ -277,7 +279,10 @@ export async function seedCoffeeCatalog(
             sku: `${p.handle.toUpperCase()}-${grind.slice(0, 2).toUpperCase()}-${bagSize.replace(" lb", "LB")}`,
             weight: lb * GRAMS_PER_LB,
             options: { Grind: grind, "Bag Size": bagSize },
-            prices: [{ amount: price, currency_code: "usd" }],
+            prices: [
+              { amount: price, currency_code: "usd" },
+              { amount: eurAmount(price), currency_code: "eur" },
+            ],
           });
         }
       }
@@ -289,7 +294,10 @@ export async function seedCoffeeCatalog(
           sku: `${p.handle.toUpperCase()}-${bottleSize.replace(" oz", "OZ")}`,
           weight: oz * GRAMS_PER_OZ,
           options: { "Bottle Size": bottleSize },
-          prices: [{ amount: p.bottlePrices[bottleSize], currency_code: "usd" }],
+          prices: [
+            { amount: p.bottlePrices[bottleSize], currency_code: "usd" },
+            { amount: eurAmount(p.bottlePrices[bottleSize]), currency_code: "eur" },
+          ],
         });
       }
     }
