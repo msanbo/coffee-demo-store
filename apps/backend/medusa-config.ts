@@ -63,9 +63,15 @@ module.exports = defineConfig({
                 resolve: '@medusajs/file-s3',
                 id: 's3',
                 options: {
-                  fileUrl: process.env.R2_PUBLIC_BASE_URL,
-                  accessKeyId: process.env.R2_ACCESS_KEY_ID,
-                  secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+                  // NOTE: the provider's actual runtime options are
+                  // snake_case despite the published .d.ts using camelCase
+                  // (S3FileServiceConfig) - confirmed against the compiled
+                  // source (dist/services/s3-file.js), which reads
+                  // options.access_key_id etc. Using the camelCase names
+                  // from the type silently fails validation at boot.
+                  file_url: process.env.R2_PUBLIC_BASE_URL,
+                  access_key_id: process.env.R2_ACCESS_KEY_ID,
+                  secret_access_key: process.env.R2_SECRET_ACCESS_KEY,
                   region: 'auto',
                   bucket: process.env.R2_BUCKET,
                   endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
