@@ -41,7 +41,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "api.the-pep-lab.com",
+        hostname: "coffee-api.3-140-111-72.sslip.io",
       },
       ...(S3_HOSTNAME && S3_PATHNAME
         ? [

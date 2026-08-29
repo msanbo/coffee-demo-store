@@ -1,14 +1,14 @@
 const checklistItems = [
-  ">98% Purity",
-  "Research Grade",
-  "COA Verified",
-  "Third-Party Tested",
+  "Direct Trade",
+  "Small-Batch Roasted",
+  "Roasted to Order",
+  "Freshly Shipped",
 ]
 
 export const TestedPill = () => {
   return (
     <span className="inline-flex w-fit items-center rounded-full border border-[#b6742a] bg-[#b6742a] px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
-      Third Party Tested
+      Freshly Roasted
     </span>
   )
 }

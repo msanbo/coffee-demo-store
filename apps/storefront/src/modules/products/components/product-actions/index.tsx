@@ -180,7 +180,7 @@ export default function ProductActions({
             ? "Select variant"
             : !inStock || !isValidVariant
             ? "Out of stock"
-            : "Secure Batch Allocation"}
+            : "Buy Now"}
         </Button>
         <MobileActions
           product={product}

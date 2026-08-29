@@ -32,25 +32,23 @@ const ProductInfo = ({ product, actions }: ProductInfoProps) => {
 
         <TestedPill />
 
-        {!!(product.metadata?.batch || product.metadata?.coa_pdf_url) && (
+        {!!(product.metadata?.origin || product.metadata?.roast_level) && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-small-regular text-ui-fg-subtle">
-            {!!product.metadata?.batch && (
+            {!!product.metadata?.origin && (
               <span>
-                Batch:{" "}
+                Origin:{" "}
                 <span className="font-semibold text-ui-fg-base">
-                  {product.metadata.batch as string}
+                  {product.metadata.origin as string}
                 </span>
               </span>
             )}
-            {!!product.metadata?.coa_pdf_url && (
-              <a
-                href={product.metadata.coa_pdf_url as string}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-[#6b4318] underline hover:text-[#b6742a]"
-              >
-                Download Certificate of Analysis (PDF)
-              </a>
+            {!!product.metadata?.roast_level && (
+              <span>
+                Roast:{" "}
+                <span className="font-semibold text-ui-fg-base">
+                  {product.metadata.roast_level as string}
+                </span>
+              </span>
             )}
           </div>
         )}

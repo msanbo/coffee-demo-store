@@ -1,6 +1,5 @@
 import React, { Suspense } from "react"
 
-import CoaDisclaimer from "@modules/products/components/coa-disclaimer"
 import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
 import ProductOnboardingCta from "@modules/products/components/product-onboarding-cta"
@@ -68,7 +67,6 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           <RelatedProducts product={product} countryCode={countryCode} />
         </Suspense>
       </div>
-      <CoaDisclaimer />
     </>
   )
 }

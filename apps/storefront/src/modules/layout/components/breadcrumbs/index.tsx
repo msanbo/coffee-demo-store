@@ -12,7 +12,6 @@ const STATIC_LABELS: Record<string, string> = {
   products: "Shop",
   collections: "Collections",
   "why-us": "Why Us",
-  coa: "COA",
   account: "Account",
   cart: "Cart",
   orders: "Orders",
