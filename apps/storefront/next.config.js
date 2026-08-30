@@ -44,7 +44,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "pub-96887c679f8e4c43a76cfbb379f79246.r2.dev",
+        hostname: "cdn.amberhour.coffee",
       },
       ...(S3_HOSTNAME && S3_PATHNAME
         ? [

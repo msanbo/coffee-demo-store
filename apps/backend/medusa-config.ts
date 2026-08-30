@@ -75,7 +75,11 @@ module.exports = defineConfig({
                   region: 'auto',
                   bucket: process.env.R2_BUCKET,
                   endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-                  prefix: process.env.R2_PREFIX || 'coffee-demo/',
+                  // No `|| 'coffee-demo/'` fallback here - that prefix was
+                  // only needed while this bucket was shared with other
+                  // projects. R2_PREFIX unset now means genuinely no
+                  // prefix, not "fall back to the old shared-bucket path".
+                  prefix: process.env.R2_PREFIX ?? '',
                   // R2 doesn't support per-object ACLs the way S3 does -
                   // access is controlled at the bucket level (public via
                   // r2.dev/custom domain, or private). Sending an ACL header
