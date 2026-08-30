@@ -2,7 +2,7 @@
 
 import { usePathname, useParams } from "next/navigation"
 
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import BreadcrumbBar, { Crumb, HOME_CRUMB } from "./breadcrumb-bar"
 
 const STATIC_LABELS: Record<string, string> = {
   store: "Shop",
@@ -33,19 +33,15 @@ const titleCase = (value: string) =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ")
 
-// Renders the "trunk" only (Home / Shop, Home / Collections, etc). The
-// final segment for a product/category/collection page needs real data
-// (the actual title, not a guess off the URL slug) that this
-// shared-across-every-page component has no way to know - it's rendered
-// once in the root layout, above where Next.js resolves the page's own
-// [handle] param, so it can't read that data without a client-side
-// fetch. A client fetch just moves the problem: the real title would
-// still be missing from server-rendered HTML and from the very first
-// paint, and a titleCase(slug) fallback is often wrong (acronyms,
-// unusual capitalization). Instead, BreadcrumbLeaf (rendered by each
-// product/category/collection template, which already has the real
-// title as a prop) appends the correct final segment, styled to
-// continue this bar seamlessly.
+// Renders Home / Shop, Home / Collections, etc for every page EXCEPT a
+// product/category/collection detail page. Those need the real title
+// (not a guessed URL slug) as the final crumb, which this shared,
+// pathname-only component has no way to know - so on a detail page it
+// renders nothing, and the page's own template (which already has the
+// real title as a prop) renders the whole trail itself, in one line,
+// via BreadcrumbBar. That avoids both a client fetch (which would leave
+// the wrong title on first paint) and a second, separately-styled bar
+// stacked underneath this one.
 const Breadcrumbs = () => {
   const pathname = usePathname()
   const { countryCode } = useParams()
@@ -60,57 +56,21 @@ const Breadcrumbs = () => {
     return null
   }
 
-  const crumbs: { label: string; href: string }[] = [{ label: "Home", href: "/" }]
+  if (segments.length > 1 && DYNAMIC_PARENTS.has(segments[0])) {
+    return null
+  }
+
+  const crumbs: Crumb[] = [HOME_CRUMB]
 
   segments.forEach((segment, index) => {
     const isLast = index === segments.length - 1
-    const prevSegment = index > 0 ? segments[index - 1] : null
-
-    // The final segment under a dynamic parent (product/category/
-    // collection detail pages) is rendered by BreadcrumbLeaf instead -
-    // skip it here entirely.
-    if (isLast && prevSegment && DYNAMIC_PARENTS.has(prevSegment)) {
-      return
-    }
-
-    if (DYNAMIC_PARENTS.has(segment)) {
-      crumbs.push({ label: STATIC_LABELS[segment], href: HREF_OVERRIDE[segment] })
-      return
-    }
-
     const label = STATIC_LABELS[segment] ?? titleCase(segment)
-    const href = "/" + segments.slice(0, index + 1).join("/")
-    crumbs.push({ label, href: isLast ? "" : href })
+    const href =
+      HREF_OVERRIDE[segment] ?? "/" + segments.slice(0, index + 1).join("/")
+    crumbs.push({ label, href: isLast ? undefined : href })
   })
 
-  return (
-    <nav
-      aria-label="Breadcrumb"
-      className="flex w-full justify-center border-b border-ui-border-base bg-[#f8f6f2] py-3"
-    >
-      <ol className="flex items-center gap-2 text-sm text-[#5e554e]">
-        {crumbs.map((crumb, index) => {
-          const isLast = index === crumbs.length - 1
-
-          return (
-            <li key={`${crumb.label}-${index}`} className="flex items-center gap-2">
-              {index > 0 && <span className="text-[#c9bda9]">/</span>}
-              {isLast || !crumb.href ? (
-                <span className="font-medium text-[#b6742a]">{crumb.label}</span>
-              ) : (
-                <LocalizedClientLink
-                  href={crumb.href}
-                  className="hover:text-[#b6742a]"
-                >
-                  {crumb.label}
-                </LocalizedClientLink>
-              )}
-            </li>
-          )
-        })}
-      </ol>
-    </nav>
-  )
+  return <BreadcrumbBar crumbs={crumbs} />
 }
 
 export default Breadcrumbs

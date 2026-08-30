@@ -1,6 +1,6 @@
 import React, { Suspense } from "react"
 
-import BreadcrumbLeaf from "@modules/layout/components/breadcrumbs/breadcrumb-leaf"
+import BreadcrumbBar, { Crumb, HOME_CRUMB } from "@modules/layout/components/breadcrumbs/breadcrumb-bar"
 import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
 import ProductOnboardingCta from "@modules/products/components/product-onboarding-cta"
@@ -30,17 +30,18 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   }
 
   const category = product.categories?.[0]
+  const crumbs: Crumb[] = [
+    HOME_CRUMB,
+    { label: "Shop", href: "/store" },
+    ...(category
+      ? [{ label: category.name, href: `/categories/${category.handle}` }]
+      : []),
+    { label: product.title },
+  ]
 
   return (
     <>
-      <BreadcrumbLeaf
-        label={product.title}
-        parent={
-          category
-            ? { label: category.name, href: `/categories/${category.handle}` }
-            : undefined
-        }
-      />
+      <BreadcrumbBar crumbs={crumbs} />
       <div
         className="content-container grid grid-cols-1 gap-x-12 gap-y-8 py-6 medium:grid-cols-2 medium:items-start"
         data-testid="product-container"

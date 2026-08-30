@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
 import InteractiveLink from "@modules/common/components/interactive-link"
-import BreadcrumbLeaf from "@modules/layout/components/breadcrumbs/breadcrumb-leaf"
+import BreadcrumbBar, { Crumb, HOME_CRUMB } from "@modules/layout/components/breadcrumbs/breadcrumb-bar"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import RefinementList from "@modules/store/components/refinement-list"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
@@ -42,9 +42,18 @@ export default function CategoryTemplate({
 
   getParents(category)
 
+  const crumbs: Crumb[] = [
+    HOME_CRUMB,
+    { label: "Shop", href: "/store" },
+    ...[...parents]
+      .reverse()
+      .map((parent) => ({ label: parent.name, href: `/categories/${parent.handle}` })),
+    { label: category.name },
+  ]
+
   return (
     <>
-      <BreadcrumbLeaf label={category.name} />
+      <BreadcrumbBar crumbs={crumbs} />
       <div
         className="flex flex-col small:flex-row small:items-start py-6 content-container"
         data-testid="category-container"

@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 
-import BreadcrumbLeaf from "@modules/layout/components/breadcrumbs/breadcrumb-leaf"
+import BreadcrumbBar, { Crumb, HOME_CRUMB } from "@modules/layout/components/breadcrumbs/breadcrumb-bar"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import RefinementList from "@modules/store/components/refinement-list"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
@@ -26,9 +26,15 @@ export default function CollectionTemplate({
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
 
+  const crumbs: Crumb[] = [
+    HOME_CRUMB,
+    { label: "Collections", href: "/store" },
+    { label: collection.title },
+  ]
+
   return (
     <>
-      <BreadcrumbLeaf label={collection.title} />
+      <BreadcrumbBar crumbs={crumbs} />
       <div className="flex flex-col small:flex-row small:items-start py-6 content-container">
         <RefinementList sortBy={sort} hideOptionsPicker />
       <div className="w-full">
