@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
 }
 
-const GA_MEASUREMENT_ID = "G-VKN8S5ZN2J"
+const GA_MEASUREMENT_ID = "G-0C7SB7TVV1"
 
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
