@@ -34,10 +34,11 @@ const Hero = () => {
         </div>
 
         <Image
-          src="/hero-coffee.jpg"
+          src="/hero-coffee.webp"
           alt="Freshly roasted coffee beans, a bag of coffee, and a steaming cup on a wooden table."
           width={1536}
           height={1024}
+          sizes="(min-width: 1024px) 50vw, 100vw"
           className="h-auto w-full rounded-3xl"
         />
       </div>
