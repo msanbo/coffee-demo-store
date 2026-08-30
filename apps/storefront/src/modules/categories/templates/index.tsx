@@ -53,6 +53,7 @@ export default function CategoryTemplate({
           sortBy={sort}
           data-testid="sort-by-container"
           hideOptionsPicker
+          currentCategoryId={category.id}
         />
         <div className="w-full">
           <div className="flex flex-row mb-8 text-2xl-semi gap-4">

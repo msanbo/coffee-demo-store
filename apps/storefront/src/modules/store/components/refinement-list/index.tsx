@@ -19,6 +19,7 @@ type RefinementListProps = {
   search?: boolean
   hideOptionsPicker?: boolean
   hideCategoryFilter?: boolean
+  currentCategoryId?: string
   "data-testid"?: string
 }
 
@@ -26,6 +27,7 @@ const RefinementList = ({
   sortBy,
   hideOptionsPicker = false,
   hideCategoryFilter = false,
+  currentCategoryId,
 }: RefinementListProps) => {
   const router = useRouter()
   const pathname = usePathname()
@@ -98,6 +100,7 @@ const RefinementList = ({
         <CategoryFilter
           selectedCategoryIds={selectedCategoryIds}
           setCategoryIds={setCategoryIds}
+          currentCategoryId={currentCategoryId}
         />
       )}
       {!hideOptionsPicker && (

@@ -29,9 +29,18 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     return notFound()
   }
 
+  const category = product.categories?.[0]
+
   return (
     <>
-      <BreadcrumbLeaf label={product.title} />
+      <BreadcrumbLeaf
+        label={product.title}
+        parent={
+          category
+            ? { label: category.name, href: `/categories/${category.handle}` }
+            : undefined
+        }
+      />
       <div
         className="content-container grid grid-cols-1 gap-x-12 gap-y-8 py-6 medium:grid-cols-2 medium:items-start"
         data-testid="product-container"
