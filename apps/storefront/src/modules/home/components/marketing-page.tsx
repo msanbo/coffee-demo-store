@@ -39,7 +39,7 @@ export default function MarketingPage({
       <section className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
         <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
           <div className="space-y-6">
-            <span className="inline-flex rounded-full border border-[#b6742a] bg-white px-3 py-1 text-sm font-medium text-[#b6742a]">
+            <span className="inline-flex rounded-full border border-[#b6742a] bg-white px-3 py-1 text-sm font-medium text-[#8f5a1f]">
               {eyebrow}
             </span>
             <Heading level="h1" className="text-4xl leading-tight text-[#1f1a17] sm:text-5xl">
@@ -51,14 +51,14 @@ export default function MarketingPage({
             <div className="flex flex-wrap gap-3">
               <LocalizedClientLink
                 href={ctaHref}
-                className="inline-flex items-center justify-center rounded-full bg-[#b6742a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#8f5a1f]"
+                className="inline-flex items-center justify-center rounded-full bg-[#8f5a1f] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#653f16]"
               >
                 {ctaLabel}
               </LocalizedClientLink>
               {secondaryHref && secondaryLabel && (
                 <LocalizedClientLink
                   href={secondaryHref}
-                  className="inline-flex items-center justify-center rounded-full border border-[#b6742a] bg-white px-6 py-3 text-sm font-medium text-[#b6742a] transition hover:bg-[#f3e6d3]"
+                  className="inline-flex items-center justify-center rounded-full border border-[#b6742a] bg-white px-6 py-3 text-sm font-medium text-[#8f5a1f] transition hover:bg-[#f3e6d3]"
                 >
                   {secondaryLabel}
                 </LocalizedClientLink>
@@ -71,7 +71,7 @@ export default function MarketingPage({
               <div className="grid gap-4 sm:grid-cols-2">
                 {stats.map((stat) => (
                   <div key={stat.label} className="rounded-2xl bg-[#f8f6f2] p-4">
-                    <div className="text-2xl font-semibold text-[#b6742a]">
+                    <div className="text-2xl font-semibold text-[#8f5a1f]">
                       {stat.value}
                     </div>
                     <div className="mt-1 text-sm text-[#5e554e]">{stat.label}</div>

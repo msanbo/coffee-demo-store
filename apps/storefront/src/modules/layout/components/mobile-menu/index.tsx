@@ -59,7 +59,7 @@ const MobileMenu = ({ categories }: MobileMenuProps) => {
           leaveTo="translate-x-full"
         >
           <DialogPanel className="fixed inset-y-0 right-0 flex w-full max-w-xs flex-col bg-white shadow-xl">
-            <div className="flex items-center justify-between gap-x-4 bg-[#b6742a] px-4 py-4">
+            <div className="flex items-center justify-between gap-x-4 bg-[#8f5a1f] px-4 py-4">
               <SearchBar />
               <button
                 type="button"

@@ -7,7 +7,7 @@ const checklistItems = [
 
 export const TestedPill = () => {
   return (
-    <span className="inline-flex w-fit items-center rounded-full border border-[#b6742a] bg-[#b6742a] px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+    <span className="inline-flex w-fit items-center rounded-full border border-[#8f5a1f] bg-[#8f5a1f] px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
       Freshly Roasted
     </span>
   )
@@ -19,7 +19,7 @@ export const QualityChecklist = () => {
       {checklistItems.map((item) => (
         <li
           key={item}
-          className="inline-flex items-center gap-1 rounded-full border border-[#b6742a] bg-[#b6742a] px-3 py-1 text-sm font-semibold text-white"
+          className="inline-flex items-center gap-1 rounded-full border border-[#8f5a1f] bg-[#8f5a1f] px-3 py-1 text-sm font-semibold text-white"
         >
           <span aria-hidden="true">✓</span>
           {item}

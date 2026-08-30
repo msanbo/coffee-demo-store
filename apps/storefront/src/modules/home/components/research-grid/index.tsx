@@ -24,7 +24,7 @@ export default async function ResearchGrid({
 
   return (
     <div className="content-container py-16">
-      <Heading level="h2" className="text-center text-2xl text-[#b6742a] sm:text-3xl">
+      <Heading level="h2" className="text-center text-2xl text-[#8f5a1f] sm:text-3xl">
         Shop the Lineup
       </Heading>
       <ul className="mt-10 grid grid-cols-2 gap-x-6 gap-y-12 small:grid-cols-3 medium:grid-cols-4">

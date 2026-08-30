@@ -96,11 +96,11 @@ const sections: AccordionItem[] = [
     content: (
       <Text className="text-sm leading-7 text-[#5e554e]">
         If you have questions about this policy or how we handle your information, please{" "}
-        <LocalizedClientLink href="/contact" className="font-medium text-[#b6742a] hover:underline">
+        <LocalizedClientLink href="/contact" className="font-medium text-[#8f5a1f] hover:underline">
           contact us
         </LocalizedClientLink>{" "}
         or email us directly at{" "}
-        <a href="mailto:hello@amberhourcoffee.com" className="font-medium text-[#b6742a] hover:underline">
+        <a href="mailto:hello@amberhourcoffee.com" className="font-medium text-[#8f5a1f] hover:underline">
           hello@amberhourcoffee.com
         </a>
         .
@@ -113,7 +113,7 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="w-full bg-[#f8f6f2]">
       <div className="mx-auto max-w-3xl px-6 py-16 sm:px-8">
-        <Heading level="h1" className="text-center text-2xl text-[#b6742a] sm:text-3xl">
+        <Heading level="h1" className="text-center text-2xl text-[#8f5a1f] sm:text-3xl">
           Privacy Policy
         </Heading>
         <Text className="mt-4 text-center text-sm leading-7 text-[#5e554e]">

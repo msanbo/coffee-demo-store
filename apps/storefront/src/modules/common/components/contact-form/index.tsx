@@ -44,7 +44,7 @@ const ContactForm = () => {
   if (status === "success") {
     return (
       <div className="rounded-2xl border border-[#b6742a] bg-[#f3e6d3] p-6 text-center">
-        <p className="text-sm font-medium text-[#b6742a]">
+        <p className="text-sm font-medium text-[#8f5a1f]">
           Thanks for reaching out — we&apos;ll get back to you soon.
         </p>
       </div>
@@ -100,7 +100,7 @@ const ContactForm = () => {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="mt-2 inline-flex items-center justify-center rounded-full bg-[#b6742a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#8f5a1f] disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-2 inline-flex items-center justify-center rounded-full bg-[#8f5a1f] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#653f16] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {status === "submitting" ? "Sending..." : "Send message"}
       </button>

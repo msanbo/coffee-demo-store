@@ -20,9 +20,9 @@ const BreadcrumbBar = ({ crumbs }: { crumbs: Crumb[] }) => {
             <li key={`${crumb.label}-${index}`} className="flex items-center gap-2">
               {index > 0 && <span className="text-[#c9bda9]">/</span>}
               {isLast || !crumb.href ? (
-                <span className="font-medium text-[#b6742a]">{crumb.label}</span>
+                <span className="font-medium text-[#8f5a1f]">{crumb.label}</span>
               ) : (
-                <LocalizedClientLink href={crumb.href} className="hover:text-[#b6742a]">
+                <LocalizedClientLink href={crumb.href} className="hover:text-[#8f5a1f]">
                   {crumb.label}
                 </LocalizedClientLink>
               )}

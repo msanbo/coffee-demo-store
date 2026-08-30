@@ -43,6 +43,7 @@ const RegionSwitcher = ({ regions }: RegionSwitcherProps) => {
       value={typeof countryCode === "string" ? countryCode : undefined}
       onChange={handleChange}
       data-testid="region-switcher"
+      aria-label="Shipping region"
       className="bg-transparent text-white text-small-regular border border-white/30 rounded-md px-2 py-1 hover:border-white/60 focus:outline-none cursor-pointer"
     >
       {options.map((option) => (

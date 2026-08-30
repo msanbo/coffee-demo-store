@@ -8,7 +8,7 @@ const Hero = () => {
     <div className="w-full border-b border-ui-border-base bg-[#f8f6f2]">
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 py-16 sm:px-8 lg:grid-cols-2 lg:px-12">
         <div className="flex flex-col items-start">
-          <span className="inline-flex w-fit rounded-full border border-[#b6742a] bg-white px-3 py-1 text-sm font-medium text-[#b6742a]">
+          <span className="inline-flex w-fit rounded-full border border-[#b6742a] bg-white px-3 py-1 text-sm font-medium text-[#8f5a1f]">
             Small-batch roasted, shipped fresh
           </span>
           <Heading level="h1" className="mt-6 max-w-xl text-4xl leading-tight text-[#1f1a17] sm:text-5xl">
@@ -20,13 +20,13 @@ const Hero = () => {
           <div className="mt-8 flex flex-wrap gap-3">
             <LocalizedClientLink
               href="/store"
-              className="inline-flex items-center justify-center rounded-full bg-[#b6742a] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#8f5a1f]"
+              className="inline-flex items-center justify-center rounded-full bg-[#8f5a1f] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#653f16]"
             >
               Shop coffee
             </LocalizedClientLink>
             <LocalizedClientLink
               href="/why-us"
-              className="inline-flex items-center justify-center rounded-full border border-[#b6742a] bg-white px-6 py-3 text-sm font-medium text-[#b6742a] transition hover:bg-[#f3e6d3]"
+              className="inline-flex items-center justify-center rounded-full border border-[#b6742a] bg-white px-6 py-3 text-sm font-medium text-[#8f5a1f] transition hover:bg-[#f3e6d3]"
             >
               Why Amber Hour
             </LocalizedClientLink>

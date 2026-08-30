@@ -5,7 +5,7 @@ const AboutUs = () => {
   return (
     <div className="w-full bg-white">
       <div className="mx-auto max-w-4xl px-6 py-16 text-center sm:px-8">
-        <Heading level="h2" className="text-2xl text-[#b6742a] sm:text-3xl">
+        <Heading level="h2" className="text-2xl text-[#8f5a1f] sm:text-3xl">
           About Us
         </Heading>
         <Text className="mt-4 text-base leading-7 text-[#5e554e]">

@@ -13,7 +13,7 @@ export default function ContactPage() {
   return (
     <div className="w-full bg-white">
       <div className="mx-auto max-w-xl px-6 py-16 sm:px-8">
-        <Heading level="h1" className="text-center text-2xl text-[#b6742a] sm:text-3xl">
+        <Heading level="h1" className="text-center text-2xl text-[#8f5a1f] sm:text-3xl">
           Contact Us
         </Heading>
         <Text className="mt-4 text-center text-sm leading-7 text-[#5e554e]">

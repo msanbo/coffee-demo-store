@@ -14,10 +14,11 @@ export default async function MobileCartButton() {
       href="/cart"
       className="relative flex items-center justify-center medium:hidden"
       data-testid="mobile-cart-link"
+      aria-label={totalItems > 0 ? `Cart, ${totalItems} items` : "Cart"}
     >
       <ShoppingCart />
       {totalItems > 0 && (
-        <span className="absolute -top-2 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-semibold text-[#b6742a]">
+        <span className="absolute -top-2 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-semibold text-[#8f5a1f]">
           {totalItems}
         </span>
       )}
