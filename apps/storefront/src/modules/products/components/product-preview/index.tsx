@@ -8,10 +8,12 @@ import PreviewPrice from "./price"
 export default async function ProductPreview({
   product,
   isFeatured,
+  priority,
   region: _region,
 }: {
   product: HttpTypes.StoreProduct
   isFeatured?: boolean
+  priority?: boolean
   region: HttpTypes.StoreRegion
 }) {
   // const pricedProduct = await listProducts({
@@ -35,6 +37,7 @@ export default async function ProductPreview({
           images={product.images}
           size="full"
           isFeatured={isFeatured}
+          priority={priority}
         />
         <div className="flex txt-compact-medium mt-4 justify-between">
           <Text className="text-ui-fg-subtle" data-testid="product-title">

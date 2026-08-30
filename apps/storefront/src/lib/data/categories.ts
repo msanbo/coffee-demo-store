@@ -14,8 +14,13 @@ export const listCategories = async (query?: Record<string, unknown>) => {
       "/store/product-categories",
       {
         query: {
-          fields:
-            "*category_children, *products, *parent_category, *parent_category.parent_category",
+          // Both callers (the nav dropdown, and generateStaticParams) only
+          // need id/name/handle and whether a category has a parent - not
+          // the full category tree or every field of every product in
+          // every category. The nav dropdown renders on every route via
+          // the root layout, so anything heavier here gets serialized to
+          // the client and re-parsed on every single page load.
+          fields: "id,name,handle,parent_category.id",
           limit,
           ...query,
         },

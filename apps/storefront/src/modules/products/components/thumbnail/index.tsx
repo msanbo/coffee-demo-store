@@ -9,6 +9,10 @@ type ThumbnailProps = {
   images?: { url?: string }[] | null
   size?: "small" | "medium" | "large" | "full" | "square"
   isFeatured?: boolean
+  // Set for the first few grid items so the one that ends up as LCP isn't
+  // lazy-loaded - next/image defaults to loading="lazy" without this,
+  // which delays the LCP image behind everything else on the page.
+  priority?: boolean
   className?: string
   "data-testid"?: string
 }
@@ -18,6 +22,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
   images,
   size = "small",
   isFeatured,
+  priority,
   className,
   "data-testid": dataTestid,
 }) => {
@@ -40,7 +45,7 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
       )}
       data-testid={dataTestid}
     >
-      <ImageOrPlaceholder image={initialImage} size={size} />
+      <ImageOrPlaceholder image={initialImage} size={size} priority={priority} />
     </Container>
   )
 }
@@ -48,7 +53,8 @@ const Thumbnail: React.FC<ThumbnailProps> = ({
 const ImageOrPlaceholder = ({
   image,
   size,
-}: Pick<ThumbnailProps, "size"> & { image?: string }) => {
+  priority,
+}: Pick<ThumbnailProps, "size" | "priority"> & { image?: string }) => {
   return image ? (
     <Image
       src={image}
@@ -58,6 +64,7 @@ const ImageOrPlaceholder = ({
       quality={50}
       sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
       fill
+      priority={priority}
     />
   ) : (
     <div className="w-full h-full absolute inset-0 flex items-center justify-center">
