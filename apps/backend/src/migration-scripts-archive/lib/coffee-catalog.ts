@@ -13,9 +13,9 @@ import {
 
 const productImageDir = join(__dirname, "../assets/product-images");
 
-const GRIND_VALUES = ["Whole Bean", "Drip Ground", "Espresso Ground"] as const;
-const BAG_SIZE_VALUES = ["2 lb", "5 lb", "10 lb"] as const;
-const BOTTLE_SIZE_VALUES = ["32 oz", "64 oz"] as const;
+export const GRIND_VALUES = ["Whole Bean", "Drip Ground", "Espresso Ground"] as const;
+export const BAG_SIZE_VALUES = ["2 lb", "5 lb", "10 lb"] as const;
+export const BOTTLE_SIZE_VALUES = ["32 oz", "64 oz"] as const;
 
 // Bulk pricing: $/lb drops as bag size goes up. Grind doesn't affect price.
 const BAG_SIZE_LB: Record<(typeof BAG_SIZE_VALUES)[number], number> = {
@@ -168,6 +168,12 @@ export const COFFEE_CATEGORY_NAMES = Array.from(
 );
 
 export const COFFEE_PRODUCT_HANDLES = products.map((p) => p.handle);
+
+export const COFFEE_PRODUCT_TAG_INFO = products.map((p) => ({
+  handle: p.handle,
+  roastLevel: p.roastLevel,
+  process: p.process,
+}));
 
 // Medusa's default handle generation keeps characters like "&", which
 // aren't safe in a URL path segment. Slugify explicitly instead.
