@@ -103,13 +103,13 @@ const RefinementList = ({
           currentCategoryId={currentCategoryId}
         />
       )}
+      <TagFilter selectedTagIds={selectedTagIds} setTagIds={setTagIds} />
       {!hideOptionsPicker && (
         <OptionsPicker
           selectedValueIds={selectedOptionValueIds}
           setOptionValueIds={setOptionValueIds}
         />
       )}
-      <TagFilter selectedTagIds={selectedTagIds} setTagIds={setTagIds} />
     </div>
   )
 }
