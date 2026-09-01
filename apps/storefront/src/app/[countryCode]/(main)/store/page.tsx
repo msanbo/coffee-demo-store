@@ -5,10 +5,27 @@ import { parseCategoryIds } from "@lib/util/category-filters"
 import { parseTagIds } from "@lib/util/tag-filters"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import StoreTemplate from "@modules/store/templates"
+import { SITE_NAME } from "@lib/constants"
+
+const title = `Coffee | ${SITE_NAME}`
+const description =
+  "Shop small-batch roasted coffee from Amber Hour Coffee Co. - house blends, single-origin roasts, and cold brew, shipped fresh."
 
 export const metadata: Metadata = {
-  title: "Store",
-  description: "Explore all of our products.",
+  title,
+  description,
+  openGraph: {
+    title,
+    description,
+    images: ["/banner.webp"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+    images: ["/banner.webp"],
+  },
 }
 
 type StorePageSearchParams = Record<string, string | string[] | undefined> & {
