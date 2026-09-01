@@ -1,7 +1,10 @@
 "use client"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo, useState } from "react"
+
+import ChevronDownMini from "@modules/common/icons/chevron-down-mini"
+import clsx from "clsx"
 
 import {
   OPTION_VALUE_QUERY_KEY,
@@ -32,6 +35,7 @@ const RefinementList = ({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const updateQueryParams = useCallback(
     (updater: (params: URLSearchParams) => void) => {
@@ -94,22 +98,49 @@ const RefinementList = ({
     })
 
   return (
-    <div className="flex flex-col gap-12 py-4 mb-8 small:px-0 pl-6 small:min-w-[250px] small:ml-[1.675rem]">
-      <SortProducts sortBy={sortBy} setQueryParams={setQueryParams} data-testid="sort-by" />
-      {!hideCategoryFilter && (
-        <CategoryFilter
-          selectedCategoryIds={selectedCategoryIds}
-          setCategoryIds={setCategoryIds}
-          currentCategoryId={currentCategoryId}
-        />
-      )}
-      <TagFilter selectedTagIds={selectedTagIds} setTagIds={setTagIds} />
-      {!hideOptionsPicker && (
-        <OptionsPicker
-          selectedValueIds={selectedOptionValueIds}
-          setOptionValueIds={setOptionValueIds}
-        />
-      )}
+    <div className="w-full small:w-1/4">
+      <button
+        type="button"
+        onClick={() => setMobileOpen((open) => !open)}
+        className="flex w-full items-center justify-between px-6 py-4 small:hidden"
+        aria-expanded={mobileOpen}
+      >
+        <span className="txt-compact-small-plus text-ui-fg-subtle">
+          Filters
+        </span>
+        <span
+          className={clsx(
+            "flex h-7 w-7 items-center justify-center text-ui-fg-muted transition-transform duration-150",
+            {
+              "rotate-180": mobileOpen,
+            }
+          )}
+        >
+          <ChevronDownMini />
+        </span>
+      </button>
+      <div
+        className={clsx(
+          "flex-col gap-12 py-4 mb-8 small:px-0 pl-6 small:ml-[1.675rem]",
+          mobileOpen ? "flex" : "hidden small:flex"
+        )}
+      >
+        <SortProducts sortBy={sortBy} setQueryParams={setQueryParams} data-testid="sort-by" />
+        {!hideCategoryFilter && (
+          <CategoryFilter
+            selectedCategoryIds={selectedCategoryIds}
+            setCategoryIds={setCategoryIds}
+            currentCategoryId={currentCategoryId}
+          />
+        )}
+        <TagFilter selectedTagIds={selectedTagIds} setTagIds={setTagIds} />
+        {!hideOptionsPicker && (
+          <OptionsPicker
+            selectedValueIds={selectedOptionValueIds}
+            setOptionValueIds={setOptionValueIds}
+          />
+        )}
+      </div>
     </div>
   )
 }

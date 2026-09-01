@@ -64,7 +64,7 @@ export default function CategoryTemplate({
           hideOptionsPicker
           currentCategoryId={category.id}
         />
-        <div className="w-full">
+        <div className="w-full small:w-3/4">
           <div className="flex flex-row mb-8 text-2xl-semi gap-4">
             {parents &&
               parents.map((parent) => (

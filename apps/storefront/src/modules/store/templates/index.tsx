@@ -34,7 +34,7 @@ const StoreTemplate = ({
         data-testid="category-container"
       >
         <RefinementList sortBy={sort} />
-        <div className="w-full">
+        <div className="w-full small:w-3/4">
           <div className="mb-8 text-2xl-semi">
             <h1 data-testid="store-page-title">
               {q ? `Search results for "${q}"` : "All products"}
