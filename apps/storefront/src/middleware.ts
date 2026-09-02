@@ -31,7 +31,13 @@ async function getRegionMap(cacheId: string) {
       },
       next: {
         revalidate: 3600,
-        tags: [`regions-${cacheId}`],
+        // The per-visitor tag lets cart.ts's revalidateTag(getCacheTag("regions"))
+        // bust this visitor's own cached view after a region switch - same
+        // pattern as listProducts in products.ts. But region data isn't
+        // actually per-visitor, so without a second, fixed tag, every new
+        // visitor (no _medusa_cache_id cookie yet) creates its own separate
+        // cache entry for the exact same region list.
+        tags: [`regions-${cacheId}`, "regions-global"],
       },
       cache: "force-cache",
     })
