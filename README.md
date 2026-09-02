@@ -18,8 +18,6 @@ This is a demo/portfolio project, not a real coffee business - built to show wha
 
 ## Local development
 
-See `apps/backend/AGENTS.md`-style conventions, or just:
-
 ```bash
 npm install
 npm run backend:dev     # Medusa backend at http://localhost:9000, admin at /app
