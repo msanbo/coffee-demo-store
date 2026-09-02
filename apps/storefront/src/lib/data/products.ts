@@ -99,12 +99,19 @@ export const listProducts = async ({
     })
 }
 
+// Bounds the in-memory price-sort fetch below. A catalog past this size
+// needs real server-side price sorting, not this approach - see the comment
+// in listProductsWithSort.
+const MAX_SORTABLE_PRODUCTS = 1000
+
 /**
- * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.
- * It will then return the paginated products based on the page and limit parameters.
+ * Returns one page of products for sortBy. created_at is sorted and
+ * paginated by Medusa directly. price_asc/price_desc can't be, since
+ * calculated price isn't a plain sortable column - those fetch every
+ * matching product, sort in memory, then paginate the sorted array.
  */
 export const listProductsWithSort = async ({
-  page = 0,
+  page = 1,
   queryParams,
   sortBy = "created_at",
   countryCode,
@@ -124,33 +131,45 @@ export const listProductsWithSort = async ({
   const optionFilters = Array.from(
     new Set((optionValueIds || []).filter(Boolean))
   )
+  const filterParams = {
+    ...queryParams,
+    ...(optionFilters.length ? { option_value_id: optionFilters } : {}),
+  }
 
+  if (sortBy === "created_at") {
+    return listProducts({
+      pageParam: page,
+      queryParams: { ...filterParams, order: "-created_at", limit },
+      countryCode,
+    })
+  }
+
+  // price_asc / price_desc: Medusa can't sort by calculated price at the
+  // database level (it's computed per region/currency from price rules,
+  // not a plain column), so this has to fetch every matching product,
+  // sort them all in memory, then paginate the sorted array itself.
+  // Fetching only the first N and sorting just those - the previous
+  // approach, capped at 100 - is correct only as long as a filter matches
+  // fewer than N products, and silently wrong past that: the actual
+  // cheapest/priciest match beyond the cutoff would never be fetched, so
+  // it would never appear "first" no matter how it's sorted.
   const {
-    response: { products },
+    response: { products, count },
   } = await listProducts({
-    pageParam: 0,
-    queryParams: {
-      ...queryParams,
-      ...(optionFilters.length ? { option_value_id: optionFilters } : {}),
-      limit: 100,
-    },
+    pageParam: 1,
+    queryParams: { ...filterParams, limit: MAX_SORTABLE_PRODUCTS },
     countryCode,
   })
 
   const sortedProducts = sortProducts(products, sortBy)
-
   const pageParam = (page - 1) * limit
-
-  const filteredCount = products.length
-
-  const nextPage = filteredCount > pageParam + limit ? pageParam + limit : null
-
   const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
+  const nextPage = count > pageParam + limit ? page + 1 : null
 
   return {
     response: {
       products: paginatedProducts,
-      count: filteredCount,
+      count,
     },
     nextPage,
     queryParams,
