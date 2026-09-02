@@ -57,3 +57,7 @@ Thumbs.db
 **/.DS_Store
 # TypeScript incremental build state
 *.tsbuildinfo
+
+# Local-only docs, not published
+AGENTS.md
+CLAUDE.md
