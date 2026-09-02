@@ -28,4 +28,4 @@ npm run storefront:dev  # Next.js storefront at http://localhost:8000
 
 ## Interested in a store like this?
 
-This repo is a working example of a custom storefront build - reach out if you want something similar for your own store.
+This repo is a working example of a custom storefront build - [reach out](https://mikesanborn.dev) if you want something similar for your own store.
