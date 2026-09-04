@@ -17,10 +17,12 @@ const BASE_RATE_USD = 5
 const RATE_PER_POUND_USD = 0.75
 const INTERNATIONAL_MULTIPLIER = 2.5
 
+// Branded as UPS speed tiers to match this store's naming convention -
+// still the same formula underneath, not a live UPS rate lookup.
 const SERVICE_TIERS: Record<string, { name: string; speedMultiplier: number }> = {
-  ground: { name: "Ground", speedMultiplier: 1 },
-  priority: { name: "Priority", speedMultiplier: 1.6 },
-  express: { name: "Express", speedMultiplier: 2.5 },
+  ground: { name: "UPS Ground", speedMultiplier: 1 },
+  priority: { name: "UPS Second Day Air", speedMultiplier: 1.6 },
+  express: { name: "UPS Next Day Air", speedMultiplier: 2.5 },
 }
 
 class CalculatedShippingProviderService extends AbstractFulfillmentProviderService {

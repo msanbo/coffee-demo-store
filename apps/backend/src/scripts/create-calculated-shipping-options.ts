@@ -1,5 +1,9 @@
 import { ExecArgs } from "@medusajs/framework/types"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import {
+  ContainerRegistrationKeys,
+  MedusaError,
+  Modules,
+} from "@medusajs/framework/utils"
 import { createShippingOptionsWorkflow } from "@medusajs/medusa/core-flows"
 
 const PROVIDER_ID = "calculated-shipping_calculated-shipping"
@@ -19,7 +23,10 @@ export default async function createCalculatedShippingOptions({ container }: Exe
     name: "United States",
   })
   if (!serviceZone) {
-    throw new Error('Service zone "United States" not found')
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      'Service zone "United States" not found'
+    )
   }
 
   const [existingOption] = await fulfillmentModuleService.listShippingOptions({
@@ -27,7 +34,10 @@ export default async function createCalculatedShippingOptions({ container }: Exe
   })
   const shippingProfileId = existingOption?.shipping_profile_id
   if (!shippingProfileId) {
-    throw new Error("Could not determine shipping_profile_id from an existing option")
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      "Could not determine shipping_profile_id from an existing option"
+    )
   }
 
   // A fulfillment provider must be explicitly enabled for a stock location
@@ -47,7 +57,10 @@ export default async function createCalculatedShippingOptions({ container }: Exe
     l.fulfillment_sets?.some((fs) => fs?.id === serviceZone.fulfillment_set_id)
   )
   if (!location) {
-    throw new Error("Could not find the stock location for this service zone")
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      "Could not find the stock location for this service zone"
+    )
   }
   await remoteLink.create({
     [Modules.STOCK_LOCATION]: { stock_location_id: location.id },
