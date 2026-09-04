@@ -8,10 +8,6 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 // checkout) at boot.
 const stripeEnabled = !!process.env.STRIPE_API_KEY
 
-// Same reasoning - fall back to the built-in manual provider only if
-// EasyPost isn't configured, rather than crashing on boot.
-const easypostEnabled = !!process.env.EASYPOST_API_KEY
-
 // Same reasoning - fall back to local disk storage if R2 isn't configured
 // (e.g. local dev) rather than crashing on boot.
 const r2Enabled =
@@ -133,17 +129,10 @@ module.exports = defineConfig({
             resolve: '@medusajs/fulfillment-manual',
             id: 'manual',
           },
-          ...(easypostEnabled
-            ? [
-                {
-                  resolve: './src/modules/easypost-fulfillment',
-                  id: 'easypost',
-                  options: {
-                    apiKey: process.env.EASYPOST_API_KEY,
-                  },
-                },
-              ]
-            : []),
+          {
+            resolve: './src/modules/calculated-shipping',
+            id: 'calculated-shipping',
+          },
         ],
       },
     },
