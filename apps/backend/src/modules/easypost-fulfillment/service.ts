@@ -56,14 +56,38 @@ const GRAMS_PER_OUNCE = 28.3495
 // rate - this is a stand-in, not a real per-order package size.
 const DEFAULT_PARCEL_INCHES = { length: 10, width: 8, height: 6 }
 
-// EasyPost's known USPS domestic service codes, confirmed against their docs
-// and support articles - these are looked up by exact string match against
-// the "service" field of each returned rate, so a wrong string here means
-// the lookup silently finds nothing rather than erroring loudly.
-const USPS_SERVICES: Record<string, string> = {
-  "usps-ground-advantage": "GroundAdvantage",
-  "usps-priority": "Priority",
-  "usps-express": "Express",
+// EasyPost's known carrier service codes, confirmed against their docs and
+// support articles - these are looked up by exact string match against the
+// "service" field of each returned rate, so a wrong string here means the
+// lookup silently finds nothing rather than erroring loudly.
+//
+// USPS rates are available on any EasyPost account by default. UPS rates
+// require a UPS carrier account added in the EasyPost dashboard first (done
+// 2026-09-04) - without one, EasyPost's response just won't include UPS
+// rates, and calculatePrice falls back to the flat estimate for those
+// options rather than erroring.
+const CARRIER_SERVICES: Record<
+  string,
+  { carrier: string; service: string; name: string }
+> = {
+  "usps-ground-advantage": {
+    carrier: "USPS",
+    service: "GroundAdvantage",
+    name: "USPS Ground Advantage",
+  },
+  "usps-priority": { carrier: "USPS", service: "Priority", name: "USPS Priority" },
+  "usps-express": { carrier: "USPS", service: "Express", name: "USPS Express" },
+  "ups-ground": { carrier: "UPS", service: "Ground", name: "UPS Ground" },
+  "ups-2nd-day-air": {
+    carrier: "UPS",
+    service: "2ndDayAir",
+    name: "UPS 2nd Day Air",
+  },
+  "ups-next-day-air": {
+    carrier: "UPS",
+    service: "NextDayAir",
+    name: "UPS Next Day Air",
+  },
 }
 
 // A flat estimate used only if a live EasyPost rate call fails. Per
@@ -85,10 +109,10 @@ class EasyPostFulfillmentProviderService extends AbstractFulfillmentProviderServ
   }
 
   async getFulfillmentOptions(): Promise<FulfillmentOption[]> {
-    return Object.entries(USPS_SERVICES).map(([id, service]) => ({
+    return Object.entries(CARRIER_SERVICES).map(([id, { carrier, service, name }]) => ({
       id,
-      name: `USPS ${service}`,
-      carrier: "USPS",
+      name,
+      carrier,
       service,
     }))
   }
